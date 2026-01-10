@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div className="flex flex-col w-full">
       <section id="hero" className="border-b border-secondary bg-[#05193B]">
-      <HeroSec />
+        <HeroSec />
       </section>
 
       <section id="numbers" className="border-b border-secondary bg-[#05193B]">
