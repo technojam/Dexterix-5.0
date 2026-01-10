@@ -3,10 +3,8 @@
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 export function MainNavbar() {
-  const pathname = usePathname();
 
   return (
     <div className="flex">
@@ -25,9 +23,7 @@ export function MainNavbar() {
       </Link>
       <nav className="hidden md:flex items-center gap-8 text-lg font-bold">
         <Link
-          href={"/"}
-          target="_blank"
-          rel="noreferrer"
+          href={"#hero"}
           draggable={false}
           className={cn(
             "transition-colors hover:text-secondary/80 text-secondary",

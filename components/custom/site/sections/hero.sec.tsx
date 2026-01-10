@@ -54,10 +54,10 @@ export default function HeroSec() {
               draggable={false}
               className="object-cover w-[300px] h-[300px] lg:w-[350px] lg:h-[350px] xl:w-[400px] xl:h-[400px]"
             />
-            <h1 className="flex text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl max-w-2xl font-bold text-secondary text-center font-sans italic px-4 sm:px-6 md:px-8">
+            <h1 className="flex text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl max-w-2xl font-bold text-secondary text-center font-lora italic px-4 sm:px-6 md:px-8">
               FINDING THE NEXT GEN DEXTERS
             </h1>
-            <p className="text-2xl max-w-2xl text-secondary text-center font-sans flex items-center gap-2 justify-center">
+            <p className="hidden md:flex text-lg font-lora md:text-2xl max-w-2xl text-secondary text-center items-center gap-2 justify-center">
               Brought to you by{" "}
               <Highlighter action="underline" color="#ffffff">
                 <span className="flex items-center gap-2 mb-1">
@@ -66,10 +66,24 @@ export default function HeroSec() {
                     alt="tj logo"
                     width={32}
                     height={32}
+                    className="object-contain w-8 h-8 md:w-12 md:h-12"
                   />
                   <span>Team Technojam</span>
                 </span>
               </Highlighter>
+            </p>
+
+            <p className="flex md:hidden text-lg md:text-2xl max-w-2xl text-secondary text-center font-sans items-center gap-2 justify-center">
+              Brought to you by{" "}
+                <span className="flex items-center gap-2 mb-1">
+                  <Image
+                    src={"/svg/tj.svg"}
+                    alt="tj logo"
+                    width={32}
+                    height={32}
+                    className="object-contain w-8 h-8 md:w-12 md:h-12"
+                  />
+                  </span>
             </p>
           </div>
         </div>
