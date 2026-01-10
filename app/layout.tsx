@@ -4,7 +4,6 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/custom/theme.provider";
 import { SiteNavbar } from "@/components/custom/site/navbar";
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
-import { ProgressiveBlur } from "@/components/ui/progressive-blur";
 import SiteFooter from "@/components/custom/site/footer";
 
 const geistSans = Geist({
@@ -30,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#F7F5F3]`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider
           attribute="class"
@@ -38,17 +37,11 @@ export default function RootLayout({
           forcedTheme="light"
           disableTransitionOnChange
         >
-          <div className="relative flex flex-col min-h-screen max-w-4xl mx-auto items-center justify-start">
-            {/* Left vertical line */}
-            <div className="w-px h-full absolute left-0 top-0 bg-[rgba(55,50,47,0.12)] shadow-[1px_0px_0px_white] z-0"></div>
-
-            {/* Right vertical line */}
-            <div className="w-px h-full absolute right-0 top-0 bg-[rgba(55,50,47,0.12)] shadow-[1px_0px_0px_white] z-0"></div>
+          <div className="flex flex-col min-h-screen items-center justify-center overflow-x-hidden">
             <SiteNavbar />
             {children}
             <SmoothCursor />
             <SiteFooter />
-            <ProgressiveBlur height="5%" position="bottom" />
           </div>
         </ThemeProvider>
       </body>

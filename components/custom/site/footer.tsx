@@ -6,7 +6,7 @@ export default function SiteFooter() {
   return (
     <footer
       id="footer"
-      className="flex flex-col w-full border-t border-solid border-[rgba(55,50,47,0.12)] shadow-[0_-1px_0px_0px_white] text-center mt-auto mb-2/5"
+      className="flex flex-col w-full border-t border-solid border-[rgba(55,50,47,0.12)] shadow-[0_-1px_0px_0px_white] text-center mt-auto mb-2/5 bg-[#05193B]"
     >
       <section
         id="footer-bottom"

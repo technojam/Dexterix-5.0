@@ -8,7 +8,7 @@ import { constants } from "@/lib/constants";
 
 export function SiteNavbar() {
   return (
-    <header className="fixed top-5 w-5/6 z-500 border border-border/60 bg-secondary/50 backdrop-blur-lg supports-backdrop-filter:bg-secondary/80 dark:border-border rounded-xl">
+    <header className="fixed top-5 w-5/6 z-500 border border-border/40 bg-secondary/10 backdrop-blur-sm supports-backdrop-filter:bg-secondary/10 dark:border-border rounded-xl">
       <div className="container flex h-12 max-w-screen items-center justify-between px-4">
         <div className="flex items-center space-x-4">
           <MainNavbar />
@@ -25,7 +25,7 @@ export function SiteNavbar() {
                 buttonVariants({
                   variant: "secondary",
                 }),
-                "h-8 w-8 px-0",
+                "h-8 w-8 px-0 bg-secondary hover:bg-secondary/80",
               )}
             >
               <Image
@@ -49,7 +49,7 @@ export function SiteNavbar() {
                 buttonVariants({
                   variant: "secondary",
                 }),
-                "h-8 w-8 px-0",
+                "h-8 w-8 px-0 bg-secondary hover:bg-secondary/80",
               )}
             >
               <Image
@@ -73,7 +73,7 @@ export function SiteNavbar() {
                 buttonVariants({
                   variant: "secondary",
                 }),
-                "h-8 w-8 px-0",
+                "h-8 w-8 px-0 bg-secondary hover:bg-secondary/80",
               )}
             >
               <Image
@@ -97,7 +97,7 @@ export function SiteNavbar() {
                 buttonVariants({
                   variant: "secondary",
                 }),
-                "h-8 w-8 px-0",
+                "h-8 w-8 px-0 bg-secondary hover:bg-secondary/80",
               )}
             >
               <Image

@@ -23,17 +23,17 @@ export function MainNavbar() {
           className="h-10 w-10 rounded-sm"
         />
       </Link>
-      <nav className="hidden md:flex items-center gap-8 text-sm font-semibold">
+      <nav className="hidden md:flex items-center gap-8 text-lg font-bold">
         <Link
           href={"/"}
           target="_blank"
           rel="noreferrer"
           draggable={false}
           className={cn(
-            "transition-colors hover:text-foreground/80",
-            pathname?.startsWith("/home")
-              ? "text-foreground"
-              : "text-foreground/60",
+            "transition-colors hover:text-secondary/80 text-secondary",
+            // pathname?.startsWith("/home")
+            //   ? "text-secondary"
+            //   : "text-secondary",
           )}
         >
           Home
@@ -45,10 +45,10 @@ export function MainNavbar() {
           rel="noreferrer"
           draggable={false}
           className={cn(
-            "transition-colors hover:text-foreground/80",
-            pathname?.startsWith("/about")
-              ? "text-foreground"
-              : "text-foreground/60",
+            "transition-colors hover:text-secondary/80 text-secondary",
+            // pathname?.startsWith("/about")
+            //   ? "text-foreground"
+            //   : "text-foreground/60",
           )}
         >
           About
@@ -60,10 +60,10 @@ export function MainNavbar() {
           rel="noreferrer"
           draggable={false}
           className={cn(
-            "transition-colors hover:text-foreground/80",
-            pathname?.startsWith("/schedule")
-              ? "text-foreground"
-              : "text-foreground/60",
+            "transition-colors hover:text-secondary/80 text-secondary",
+            // pathname?.startsWith("/schedule")
+            //   ? "text-foreground"
+            //   : "text-foreground/60",
           )}
         >
           Schedule
@@ -75,10 +75,10 @@ export function MainNavbar() {
           rel="noreferrer"
           draggable={false}
           className={cn(
-            "transition-colors hover:text-foreground/80",
-            pathname?.startsWith("/events")
-              ? "text-foreground"
-              : "text-foreground/60",
+            "transition-colors hover:text-secondary/80 text-secondary",
+            // pathname?.startsWith("/events")
+            //   ? "text-foreground"
+            //   : "text-foreground/60",
           )}
         >
           Events
@@ -90,10 +90,10 @@ export function MainNavbar() {
           rel="noreferrer"
           draggable={false}
           className={cn(
-            "transition-colors hover:text-foreground/80",
-            pathname?.startsWith("/sponsor")
-              ? "text-foreground"
-              : "text-foreground/60",
+            "transition-colors hover:text-secondary/80 text-secondary",
+            // pathname?.startsWith("/sponsor")
+            //   ? "text-foreground"
+            //   : "text-foreground/60",
           )}
         >
           Sponsor
@@ -105,10 +105,10 @@ export function MainNavbar() {
           rel="noreferrer"
           draggable={false}
           className={cn(
-            "transition-colors hover:text-foreground/80",
-            pathname?.startsWith("/prize")
-              ? "text-foreground"
-              : "text-foreground/60",
+            "transition-colors hover:text-secondary/80 text-secondary",
+            // pathname?.startsWith("/prize")
+            //   ? "text-foreground"
+            //   : "text-foreground/60",
           )}
         >
           Prize
@@ -120,10 +120,10 @@ export function MainNavbar() {
           rel="noreferrer"
           draggable={false}
           className={cn(
-            "transition-colors hover:text-foreground/80",
-            pathname?.startsWith("/contact")
-              ? "text-foreground"
-              : "text-foreground/60",
+            "transition-colors hover:text-secondary/80 text-secondary",
+            // pathname?.startsWith("/contact")
+            //   ? "text-foreground"
+            //   : "text-foreground/60",
           )}
         >
           Contact

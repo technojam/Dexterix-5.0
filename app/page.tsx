@@ -1,15 +1,14 @@
 import HeroSec from "@/components/custom/site/sections/hero.sec";
-import NumbersSec from "@/components/custom/site/sections/numbers.sec";
 
 export default function Home() {
   return (
-    <div className="flex flex-col h-full w-full overflow-hidden">
-      <section id="hero">
-        <HeroSec />
+    <div className="flex flex-col w-full">
+      <section id="hero" className="border-b border-secondary bg-[#05193B]">
+      <HeroSec />
       </section>
 
-      <section id="numbers">
-        <NumbersSec />
+      <section id="numbers" className="border-b border-secondary bg-[#05193B]">
+        {/* <NumbersSec /> */}
       </section>
     </div>
   );
