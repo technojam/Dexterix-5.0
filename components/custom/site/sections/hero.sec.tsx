@@ -18,6 +18,14 @@ export default function HeroSec() {
         priority
         draggable={false}
       />
+      <Image
+        src={"/img/bg-stars.png"}
+        alt="bg"
+        fill
+        className="absolute inset-0 z-10 w-full h-full object-cover pointer-events-none select-none opacity-25"
+        priority
+        draggable={false}
+      />
       {/* Top left gradient - responsive size and position */}
       <div className="absolute bottom-0 left-[-20%] sm:left-[-15%] md:left-[-10%] right-0 top-[-10%] sm:top-[-5%] h-[200px] w-[200px] sm:h-[300px] sm:w-[300px] md:h-[400px] md:w-[400px] lg:h-[500px] lg:w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(211,211,211,0.15),rgba(255,255,255,0))] opacity-30 sm:opacity-35 md:opacity-40" />
 
