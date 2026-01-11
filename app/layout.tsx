@@ -6,7 +6,6 @@ import { SiteNavbar } from "@/components/custom/site/navbar";
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import SiteFooter from "@/components/custom/site/footer";
 
-
 const fontLora = localFont({
   src: [
     {
@@ -57,9 +56,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${fontLora.variable} antialiased`}
-      >
+      <body className={`${fontLora.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

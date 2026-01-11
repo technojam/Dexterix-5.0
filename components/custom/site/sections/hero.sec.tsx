@@ -5,6 +5,11 @@ import Image from "next/image";
 export default function HeroSec() {
   return (
     <div className="relative flex h-full w-full overflow-hidden">
+      <StarsBackground
+        starDensity={0.005}
+        minTwinkleSpeed={1}
+        className="flex z-300"
+      />
       {/* Top left gradient - responsive size and position */}
       <div className="absolute bottom-0 left-[-20%] sm:left-[-15%] md:left-[-10%] right-0 top-[-10%] sm:top-[-5%] h-[200px] w-[200px] sm:h-[300px] sm:w-[300px] md:h-[400px] md:w-[400px] lg:h-[500px] lg:w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(211,211,211,0.15),rgba(255,255,255,0))] opacity-30 sm:opacity-35 md:opacity-40" />
 
@@ -16,12 +21,6 @@ export default function HeroSec() {
           rounded-t-full
           bg-[radial-gradient(circle_at_50%_100%,rgba(120,170,255,0.95)_0%,rgba(70,130,255,0.65)_35%,rgba(40,90,210,0.35)_60%,rgba(0,0,0,0)_78%)]
           blur-xl sm:blur-2xl opacity-80 sm:opacity-85 md:opacity-90"
-      />
-
-      <StarsBackground
-        starDensity={0.001}
-        minTwinkleSpeed={1}
-        className="flex z-300"
       />
 
       {/* Bottom center gradient - responsive */}
@@ -75,15 +74,15 @@ export default function HeroSec() {
 
             <p className="flex md:hidden text-lg md:text-2xl max-w-2xl text-secondary text-center font-sans items-center gap-2 justify-center">
               Brought to you by{" "}
-                <span className="flex items-center gap-2 mb-1">
-                  <Image
-                    src={"/svg/tj.svg"}
-                    alt="tj logo"
-                    width={32}
-                    height={32}
-                    className="object-contain w-8 h-8 md:w-12 md:h-12"
-                  />
-                  </span>
+              <span className="flex items-center gap-2 mb-1">
+                <Image
+                  src={"/svg/tj.svg"}
+                  alt="tj logo"
+                  width={32}
+                  height={32}
+                  className="object-contain w-8 h-8 md:w-12 md:h-12"
+                />
+              </span>
             </p>
           </div>
         </div>

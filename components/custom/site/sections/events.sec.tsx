@@ -1,6 +1,6 @@
 import { StarsBackground } from "@/components/ui/stars-bg";
 
-export default function AboutSec() {
+export default function EventsSec() {
   return (
     <div className="relative flex h-full w-full overflow-hidden">
       <StarsBackground
@@ -13,13 +13,13 @@ export default function AboutSec() {
       {/* Bottom center gradient - responsive */}
       <div
         className="
-          pointer-events-none
-          absolute bottom-0 left-1/2
-          h-32 w-[150px] sm:h-48 sm:w-[200px] md:h-64 md:w-[250px] lg:h-72 lg:w-[290px]
-          -translate-x-1/2
-          bg-[radial-gradient(circle_80rem_at_60%_140%,oklch(0.49_0.22_264)_10%,oklch(0.49_0.22_264/0.7)_65%,oklch(0.49_0.22_264/0.45)_20%,rgba(5,10,40,0)_85%)]
-          blur-xl sm:blur-2xl opacity-90 sm:opacity-95
-        "
+              pointer-events-none
+              absolute bottom-0 left-1/2
+              h-32 w-[150px] sm:h-48 sm:w-[200px] md:h-64 md:w-[250px] lg:h-72 lg:w-[290px]
+              -translate-x-1/2
+              bg-[radial-gradient(circle_80rem_at_60%_140%,oklch(0.49_0.22_264)_10%,oklch(0.49_0.22_264/0.7)_65%,oklch(0.49_0.22_264/0.45)_20%,rgba(5,10,40,0)_85%)]
+              blur-xl sm:blur-2xl opacity-90 sm:opacity-95
+            "
       />
 
       {/* Purple oval focus light - responsive gradient sizes */}
@@ -31,7 +31,7 @@ export default function AboutSec() {
       {/* Content */}
       <div className="flex items-center justify-center w-full h-full z-10">
         <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-8 p-4 sm:p-8 md:p-12 lg:p-16 xl:p-20">
-          About
+          Events
         </div>
       </div>
     </div>
