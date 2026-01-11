@@ -10,6 +10,14 @@ export default function HeroSec() {
         minTwinkleSpeed={1}
         className="flex z-300"
       />
+      <Image
+        src={"/img/bg-planets.png"}
+        alt="bg"
+        fill
+        className="absolute inset-0 z-100 w-full h-full object-cover pointer-events-none select-none"
+        priority
+        draggable={false}
+      />
       {/* Top left gradient - responsive size and position */}
       <div className="absolute bottom-0 left-[-20%] sm:left-[-15%] md:left-[-10%] right-0 top-[-10%] sm:top-[-5%] h-[200px] w-[200px] sm:h-[300px] sm:w-[300px] md:h-[400px] md:w-[400px] lg:h-[500px] lg:w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(211,211,211,0.15),rgba(255,255,255,0))] opacity-30 sm:opacity-35 md:opacity-40" />
 
@@ -42,7 +50,7 @@ export default function HeroSec() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_30%_at_90%_30%,rgba(36,69,134,0.6)_0%,rgba(36,49,134,0.3)_55%,transparent_95%)] sm:bg-[radial-gradient(ellipse_80%_35%_at_90%_30%,rgba(36,69,134,0.6)_0%,rgba(36,49,134,0.3)_55%,transparent_95%)] md:bg-[radial-gradient(ellipse_90%_40%_at_90%_30%,rgba(36,69,134,0.6)_0%,rgba(36,49,134,0.3)_55%,transparent_95%)]"></div>
 
       {/* Content */}
-      <div className="flex items-center justify-center w-full h-full mt-20 md:mt-5 z-10">
+      <div className="flex items-center justify-center w-full h-full mt-20 md:mt-5 z-200">
         <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-8 p-4 sm:p-8 md:p-12 lg:p-16 xl:p-20">
           <div className="flex flex-col gap-3 sm:gap-4 md:gap-6 max-w-3xl items-center text-center">
             <Image
@@ -53,7 +61,7 @@ export default function HeroSec() {
               draggable={false}
               className="object-cover w-[300px] h-[300px] lg:w-[350px] lg:h-[350px] xl:w-[400px] xl:h-[400px]"
             />
-            <h1 className="flex text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl max-w-2xl font-bold text-secondary text-center font-lora italic px-4 sm:px-6 md:px-8">
+            <h1 className="flex text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl max-w-2xl font-bold text-secondary text-center font-lora italic px-4 sm:px-6 md:px-8 drop-shadow-lg">
               FINDING THE NEXT GEN DEXTERS
             </h1>
             <p className="hidden md:flex text-lg font-lora md:text-2xl max-w-2xl text-secondary text-center items-center gap-2 justify-center">

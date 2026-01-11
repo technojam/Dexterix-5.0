@@ -1,4 +1,12 @@
 import { StarsBackground } from "@/components/ui/stars-bg";
+import {
+  Frame,
+  FrameDescription,
+  FrameFooter,
+  FrameHeader,
+  FramePanel,
+  FrameTitle,
+} from "@/components/ui/frame";
 
 export default function AboutSec() {
   return (
@@ -30,8 +38,32 @@ export default function AboutSec() {
 
       {/* Content */}
       <div className="flex items-center justify-center w-full h-full z-10">
-        <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-8 p-4 sm:p-8 md:p-12 lg:p-16 xl:p-20">
-          About
+        <div className="flex flex-col items-center justify-center gap-4 sm:gap-6 md:gap-8 p-4 sm:p-8 md:p-12 lg:p-16 xl:p-20">
+          {/* <h1 className="text-4xl font-lora font-bold text-secondary drop-shadow-lg">
+            About
+          </h1>
+          <p className="text-lg md:text-xl lg:text-2xl font-lora max-w-3xl text-secondary text-justify">
+            Organized by Team TechnoJam, the University&apos;s student-run
+            Technical Club, and the School of Computing Science and Engineering,
+            Dexterix 5.0 promises an electrifying 36-hour journey into the
+            future of technology. Following the success of previous editions,
+            Dexterix 5.0 is all set to welcome over 600 participants from across
+            100+ colleges and universities in India. From its humble beginnings
+            in 2018, Dexterix has fostered a thriving community of innovators
+            and collaborators, igniting passions and nurturing entrepreneurial
+            dreams.
+          </p> */}
+
+<Frame className="flex h-full min-w-5xl">
+      <FrameHeader>
+        <FrameTitle className="text-4xl font-lora text-secondary font-bold drop-shadow-lg">About</FrameTitle>
+        <FrameDescription className="text-muted">Brief description about the section</FrameDescription>
+      </FrameHeader>
+      <FramePanel>
+        <h2 className="font-semibold text-sm">Section title</h2>
+        <p className="text-muted-foreground text-sm">Section description</p>
+      </FramePanel>
+    </Frame>
         </div>
       </div>
     </div>
