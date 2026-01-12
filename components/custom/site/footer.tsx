@@ -20,7 +20,7 @@ export default function SiteFooter() {
         src={"/img/bg-stars2.png"}
         alt="bg"
         fill
-        className="absolute inset-0 z-10 w-full h-full object-cover pointer-events-none select-none opacity-25"
+        className="absolute inset-0 z-10 w-full h-full object-cover pointer-events-none select-none opacity-10"
         priority
         draggable={false}
       />
@@ -72,8 +72,8 @@ export default function SiteFooter() {
               <span className="font-semibold italic text-secondary">
                 Saidev Dhal
               </span>
-            </Link>
-            {" "} from TechnoJam
+            </Link>{" "}
+            from TechnoJam
           </span>
         </div>
         <div className="flex flex-col items-center md:items-end text-center md:text-right mt-4 md:mt-0 w-full md:w-auto">

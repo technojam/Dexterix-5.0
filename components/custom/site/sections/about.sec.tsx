@@ -27,7 +27,7 @@ export default function AboutSec() {
         src={"/img/bg-stars2.png"}
         alt="bg"
         fill
-        className="absolute inset-0 z-10 w-full h-full object-cover pointer-events-none select-none opacity-25"
+        className="absolute inset-0 z-10 w-full h-full object-cover pointer-events-none select-none opacity-10"
         priority
         draggable={false}
       />

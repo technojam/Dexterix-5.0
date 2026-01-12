@@ -1,4 +1,6 @@
+import { Button } from "@/components/ui/button";
 import { Highlighter } from "@/components/ui/highlighter";
+import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { StarsBackground } from "@/components/ui/stars-bg";
 import Image from "next/image";
 
@@ -22,7 +24,7 @@ export default function HeroSec() {
         src={"/img/bg-stars.png"}
         alt="bg"
         fill
-        className="absolute inset-0 z-10 w-full h-full object-cover pointer-events-none select-none opacity-25"
+        className="absolute inset-0 z-10 w-full h-full object-cover pointer-events-none select-none opacity-10"
         priority
         draggable={false}
       />
@@ -58,7 +60,7 @@ export default function HeroSec() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_30%_at_90%_30%,rgba(36,69,134,0.6)_0%,rgba(36,49,134,0.3)_55%,transparent_95%)] sm:bg-[radial-gradient(ellipse_80%_35%_at_90%_30%,rgba(36,69,134,0.6)_0%,rgba(36,49,134,0.3)_55%,transparent_95%)] md:bg-[radial-gradient(ellipse_90%_40%_at_90%_30%,rgba(36,69,134,0.6)_0%,rgba(36,49,134,0.3)_55%,transparent_95%)]"></div>
 
       {/* Content */}
-      <div className="flex items-center justify-center w-full h-full mt-20 md:mt-5 z-200">
+      <div className="flex items-center justify-center w-full h-full mt-20 md:mt-5 z-300">
         <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-8 p-4 sm:p-8 md:p-12 lg:p-16 xl:p-20">
           <div className="flex flex-col gap-3 sm:gap-4 md:gap-6 max-w-3xl items-center text-center">
             <Image
@@ -72,7 +74,12 @@ export default function HeroSec() {
             <h1 className="flex text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl max-w-2xl font-bold text-secondary text-center font-lora italic px-4 sm:px-6 md:px-8 drop-shadow-lg">
               FINDING THE NEXT GEN DEXTERS
             </h1>
-            <p className="hidden md:flex text-lg font-lora md:text-2xl max-w-2xl text-secondary text-center items-center gap-2 justify-center">
+            <ShimmerButton background="#FE14A6" className="h-10 w-50 shadow-xl">
+              <span className="text-center text-sm leading-none font-medium tracking-tight whitespace-pre-wrap text-white lg:text-lg">
+                Register Now
+              </span>
+            </ShimmerButton>
+            <p className="hidden md:flex text-lg mt-10 font-lora md:text-2xl max-w-2xl text-secondary text-center items-center gap-2 justify-center">
               Brought to you by{" "}
               <Highlighter action="underline" color="#ffffff">
                 <span className="flex items-center gap-2 mb-1">
@@ -88,7 +95,7 @@ export default function HeroSec() {
               </Highlighter>
             </p>
 
-            <p className="flex md:hidden text-lg md:text-2xl max-w-2xl text-secondary text-center font-sans items-center gap-2 justify-center">
+            <p className="flex md:hidden mt-10 text-lg md:text-2xl max-w-2xl text-secondary text-center font-sans items-center gap-2 justify-center">
               Brought to you by{" "}
               <span className="flex items-center gap-2 mb-1">
                 <Image
