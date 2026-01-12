@@ -75,11 +75,11 @@ export default function HeroSec() {
               FINDING THE NEXT GEN DEXTERS
             </h1>
             <ShimmerButton background="#FE14A6" className="h-10 w-50 shadow-xl">
-              <span className="text-center text-sm leading-none font-medium tracking-tight whitespace-pre-wrap text-white lg:text-lg">
+              <span className="text-center font-lora font-semibold text-sm leading-none tracking-tight whitespace-pre-wrap text-white lg:text-lg">
                 Register Now
               </span>
             </ShimmerButton>
-            <p className="hidden md:flex text-lg mt-10 font-lora md:text-2xl max-w-2xl text-secondary text-center items-center gap-2 justify-center">
+            <p className="hidden md:flex text-lg mt-10 font-lora max-w-2xl text-secondary text-center items-center gap-2 justify-center">
               Brought to you by{" "}
               <Highlighter action="underline" color="#ffffff">
                 <span className="flex items-center gap-2 mb-1">
@@ -95,7 +95,7 @@ export default function HeroSec() {
               </Highlighter>
             </p>
 
-            <p className="flex md:hidden mt-10 text-lg md:text-2xl max-w-2xl text-secondary text-center font-sans items-center gap-2 justify-center">
+            <p className="flex md:hidden mt-10 text-lg max-w-2xl text-secondary text-center font-sans items-center gap-2 justify-center">
               Brought to you by{" "}
               <span className="flex items-center gap-2 mb-1">
                 <Image

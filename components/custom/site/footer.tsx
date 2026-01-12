@@ -77,7 +77,7 @@ export default function SiteFooter() {
           </span>
         </div>
         <div className="flex flex-col items-center md:items-end text-center md:text-right mt-4 md:mt-0 w-full md:w-auto">
-          <Button variant="outline" size="lg" className="mb-2">
+          <Button variant="secondary" size="lg" className="mb-2 font-lora font-semibold">
             Register Today!
           </Button>
           <p className="text-sm font-lora italic text-secondary">
