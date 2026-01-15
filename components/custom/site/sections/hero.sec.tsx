@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+
 import { Highlighter } from "@/components/ui/highlighter";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { StarsBackground } from "@/components/ui/stars-bg";
@@ -74,7 +74,7 @@ export default function HeroSec() {
             <h1 className="flex text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl max-w-2xl font-bold text-secondary text-center font-lora italic px-4 sm:px-6 md:px-8 drop-shadow-lg">
               FINDING THE NEXT GEN DEXTERS
             </h1>
-            <ShimmerButton background="#FE14A6" className="h-10 w-50 shadow-xl">
+            <ShimmerButton background="#EE2D78" className="h-10 w-50 shadow-xl">
               <span className="text-center font-lora font-semibold text-sm leading-none tracking-tight whitespace-pre-wrap text-white lg:text-lg">
                 Register Now
               </span>
