@@ -1,4 +1,3 @@
-
 import { Highlighter } from "@/components/ui/highlighter";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { StarsBackground } from "@/components/ui/stars-bg";

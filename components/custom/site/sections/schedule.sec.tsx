@@ -9,19 +9,20 @@ export default function ScheduleSec() {
       content: (
         <div>
           <p className="mb-4 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
-             Kickstart your journey by registering your team. Join over 600 participants ready to innovate.
+            Kickstart your journey by registering your team. Join over 600
+            participants ready to innovate.
           </p>
           <div className="grid grid-cols-2 gap-4">
-             <Image
+            <Image
               src="https://assets.aceternity.com/templates/startup-1.webp"
               alt="registration"
               width={500}
               height={500}
               className="h-20 w-full rounded-lg object-cover shadow-sm md:h-32 lg:h-40"
             />
-             <div className="h-20 w-full rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center md:h-32 lg:h-40">
-                <span className="text-2xl">🚀</span>
-             </div>
+            <div className="h-20 w-full rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center md:h-32 lg:h-40">
+              <span className="text-2xl">🚀</span>
+            </div>
           </div>
         </div>
       ),
@@ -30,16 +31,17 @@ export default function ScheduleSec() {
       title: "Opening Ceremony",
       content: (
         <div>
-           <p className="mb-4 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
-            Welcome address, keynote speeches by industry leaders, and hackathon rules briefing.
+          <p className="mb-4 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
+            Welcome address, keynote speeches by industry leaders, and hackathon
+            rules briefing.
           </p>
-           <Image
-              src="https://assets.aceternity.com/pro/hero-sections.png"
-              alt="opening ceremony"
-              width={500}
-              height={500}
-              className="h-40 w-full rounded-lg object-cover shadow-sm md:h-60"
-            />
+          <Image
+            src="https://assets.aceternity.com/pro/hero-sections.png"
+            alt="opening ceremony"
+            width={500}
+            height={500}
+            className="h-40 w-full rounded-lg object-cover shadow-sm md:h-60"
+          />
         </div>
       ),
     },
@@ -48,23 +50,25 @@ export default function ScheduleSec() {
       content: (
         <div>
           <p className="mb-4 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
-             The 36-hour timer begins! Collaborate, code, and bring your innovative ideas to life.
+            The 36-hour timer begins! Collaborate, code, and bring your
+            innovative ideas to life.
           </p>
           <div className="flex items-center gap-2 text-xs text-neutral-700 md:text-sm dark:text-neutral-300 mb-2">
-               ✅ Theme Announcement
+            ✅ Theme Announcement
           </div>
-           <div className="flex items-center gap-2 text-xs text-neutral-700 md:text-sm dark:text-neutral-300">
-               ✅ Team Formation Finalized
+          <div className="flex items-center gap-2 text-xs text-neutral-700 md:text-sm dark:text-neutral-300">
+            ✅ Team Formation Finalized
           </div>
         </div>
       ),
     },
-     {
+    {
       title: "Mentoring Round 1",
       content: (
         <div>
           <p className="mb-4 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
-            Expert mentors review your initial concepts and provide critical feedback to refine your approach.
+            Expert mentors review your initial concepts and provide critical
+            feedback to refine your approach.
           </p>
           <div className="grid grid-cols-2 gap-4">
             <Image
@@ -90,28 +94,32 @@ export default function ScheduleSec() {
       content: (
         <div>
           <p className="mb-4 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
-            Code freeze! Submit your project repositories and presentation decks for evaluation.
+            Code freeze! Submit your project repositories and presentation decks
+            for evaluation.
           </p>
-           <div className="h-24 w-full rounded-lg bg-indigo-900/20 border border-indigo-500/30 flex items-center justify-center">
-                <span className="text-secondary font-bold">🏁 Submission Deadline</span>
-             </div>
+          <div className="h-24 w-full rounded-lg bg-indigo-900/20 border border-indigo-500/30 flex items-center justify-center">
+            <span className="text-secondary font-bold">
+              🏁 Submission Deadline
+            </span>
+          </div>
         </div>
       ),
     },
-     {
+    {
       title: "Closing & Awards",
       content: (
         <div>
-           <p className="mb-4 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
-            Celebrating the winners! Prizes distribution and networking with sponsors and judges.
+          <p className="mb-4 text-xs font-normal text-neutral-800 md:text-sm dark:text-neutral-200">
+            Celebrating the winners! Prizes distribution and networking with
+            sponsors and judges.
           </p>
-           <Image
-              src="https://assets.aceternity.com/cards.png"
-              alt="awards"
-              width={500}
-              height={500}
-              className="h-40 w-full rounded-lg object-cover shadow-sm md:h-60"
-            />
+          <Image
+            src="https://assets.aceternity.com/cards.png"
+            alt="awards"
+            width={500}
+            height={500}
+            className="h-40 w-full rounded-lg object-cover shadow-sm md:h-60"
+          />
         </div>
       ),
     },
@@ -146,14 +154,13 @@ export default function ScheduleSec() {
 
       {/* Content */}
       <div className="relative w-full z-10 flex flex-col items-center">
-         <div className="flex flex-col items-center justify-center pt-20 pb-10">
-             <h1 className="text-4xl text-center font-lora text-white font-bold drop-shadow-lg">
-                Schedules
-             </h1>
-         </div>
+        <div className="flex flex-col items-center justify-center pt-20 pb-10">
+          <h1 className="text-4xl text-center font-lora text-white font-bold drop-shadow-lg">
+            Schedules
+          </h1>
+        </div>
         <Timeline data={data} />
       </div>
     </div>
   );
 }
-
