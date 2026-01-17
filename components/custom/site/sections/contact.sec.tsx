@@ -78,7 +78,7 @@ export default function ContactSec() {
         src={"/img/bg-space.png"}
         alt="bg"
         fill
-        className="absolute inset-0 z-0 w-full h-full object-cover pointer-events-none select-none"
+        className="absolute opacity-45 inset-0 z-0 w-full h-full object-cover pointer-events-none select-none"
         priority
         draggable={false}
       />
@@ -117,7 +117,7 @@ export default function ContactSec() {
         </h2>
 
         <div className="w-full max-w-2xl px-4">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-10 backdrop-blur-sm">
+          <div className="bg-secondary/15 border border-secondary/30 rounded-xl p-6 backdrop-blur-lg">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
