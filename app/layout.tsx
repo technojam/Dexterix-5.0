@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/custom/theme.provider";
 import { SiteNavbar } from "@/components/custom/site/navbar";
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import SiteFooter from "@/components/custom/site/footer";
+import { Toaster } from "@/components/ui/sonner";
 
 const fontLora = localFont({
   src: [
@@ -68,6 +69,7 @@ export default function RootLayout({
             {children}
             <SmoothCursor />
             <SiteFooter />
+            <Toaster />
           </div>
         </ThemeProvider>
       </body>

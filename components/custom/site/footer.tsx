@@ -1,4 +1,5 @@
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { socials } from "@/lib/constants";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -12,7 +13,7 @@ export default function SiteFooter() {
         src={"/img/bg-earth.png"}
         alt="bg"
         fill
-        className="absolute inset-0 top-10 z-50 opacity-45 w-full h-full object-cover pointer-events-none select-none"
+        className="absolute inset-0 top-10 z-50 opacity-35 w-full h-full object-cover pointer-events-none select-none"
         priority
         draggable={false}
       />
@@ -33,32 +34,31 @@ export default function SiteFooter() {
           bg-[radial-gradient(circle_at_50%_0%,rgba(120,170,255,0.95)_0%,rgba(70,130,255,0.65)_35%,rgba(40,90,210,0.35)_60%,rgba(0,0,0,0)_78%)]
           blur-xl sm:blur-2xl opacity-80 sm:opacity-85 md:opacity-90"
       />
-      <section
-        id="footer-bottom"
-        className="flex flex-col z-300 md:flex-row items-center justify-between gap-6 p-5"
-      >
-        <div className="flex flex-col w-full md:max-w-sm text-center items-center md:items-start md:text-start">
-          <Link
-            href="/"
-            className="flex items-center space-x-2 select-none cursor-pointer"
-          >
-            <div className="relative overflow-hidden rounded">
-              <Image
-                src="/img/logo.png"
-                alt="logo"
-                className="object-center object-cover"
-                width={60}
-                height={60}
-                priority
-              />
-            </div>
-            <span className="text-2xl text-secondary font-lora drop-shadow-2xl font-bold">
-              DEXTRIEX 5.0
-            </span>
-          </Link>
-          <p className="text-sm text-secondary">
-            © 2026 Dextrix. All rights reserved by Team TechnoJam.
-          </p>
+      <div className="flex flex-col items-start gap-2 p-4 md:p-8 relative z-200 text-left w-full">
+        <Link
+          href="/"
+          className="flex items-center space-x-2 select-none cursor-pointer"
+        >
+          <div className="relative overflow-hidden rounded">
+            <Image
+              src="/img/logo.png"
+              alt="logo"
+              className="object-center object-cover"
+              width={60}
+              height={60}
+              priority
+            />
+          </div>
+          <span className="text-2xl text-secondary font-lora drop-shadow-2xl font-bold">
+            DEXTRIEX 5.0
+          </span>
+        </Link>
+        <p className="text-gray-300 text-sm max-w-lg">
+          We&apos;re finding new gen Dexters to build the next-gen products.
+          Register now to be a part of the DEXTRIEX 5.0!
+        </p>
+
+        <div className="flex flex-col">
           <span className="font-lora mt-2 text-secondary">
             Built with ❤️ by{" "}
             <Link
@@ -76,19 +76,106 @@ export default function SiteFooter() {
             from TechnoJam
           </span>
         </div>
-        <div className="flex flex-col items-center md:items-end text-center md:text-right mt-4 md:mt-0 w-full md:w-auto">
-          <Button
-            variant="secondary"
-            size="lg"
-            className="mb-2 font-lora font-semibold"
-          >
-            Register Today!
-          </Button>
-          <p className="text-sm font-lora italic text-secondary">
-            Build. Break. Repeat.
-          </p>
+
+        <div className="w-full">
+          <div className="grid grid-cols-3 md:grid-cols-4 my-5 gap-20">
+            <div className="flex flex-col gap-3">
+              <span className="font-semibold text-white">Quick Links</span>
+              <Link href={"/"} className="hover:text-secondary text-gray-400">
+                Home
+              </Link>
+              <Link
+                href={"#about"}
+                className="hover:text-secondary text-gray-400"
+              >
+                About
+              </Link>
+              <Link
+                href={"#sponsors"}
+                className="hover:text-secondary text-gray-400"
+              >
+                Sponsors
+              </Link>
+              <Link
+                href={"#contact"}
+                className="hover:text-secondary text-gray-400"
+              >
+                Contact
+              </Link>
+              <Link
+                href={"#faq"}
+                className="hover:text-secondary text-gray-400"
+              >
+                FAQ
+              </Link>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <span className="font-semibold text-white">Connect</span>
+              <Link
+                href={socials.x}
+                className="hover:text-secondary text-gray-400"
+              >
+                X (Twitter)
+              </Link>
+              <Link
+                href={socials.discord}
+                className="hover:text-secondary text-gray-400"
+              >
+                Discord
+              </Link>
+              <Link
+                href={socials.insta}
+                className="hover:text-secondary text-gray-400"
+              >
+                Instagram
+              </Link>
+              <Link
+                href={socials.linkedin}
+                className="hover:text-secondary text-gray-400"
+              >
+                LinkedIn
+              </Link>
+              <Link
+                href={socials.email}
+                className="hover:text-secondary text-gray-400"
+              >
+                Email
+              </Link>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <span className="font-semibold text-white">Resources</span>
+              <Link href={"#"} className="hover:text-secondary text-gray-400">
+                Sponsorship Brochure
+              </Link>
+
+              <Link href={"#"} className="hover:text-secondary text-gray-400">
+                Code of Conduct
+              </Link>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <span className="font-semibold text-white">Archives</span>
+              <Link href={"#"} className="hover:text-secondary text-gray-400">
+                DEXTRIEX 4.0
+              </Link>
+
+              <Link href={"#"} className="hover:text-secondary text-gray-400">
+                DEXTRIEX 3.0
+              </Link>
+
+              <Link href={"#"} className="hover:text-secondary text-gray-400">
+                DEXTRIEX 2.0
+              </Link>
+
+              <Link href={"#"} className="hover:text-secondary text-gray-400">
+                NASA Challenge
+              </Link>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
     </footer>
   );
 }

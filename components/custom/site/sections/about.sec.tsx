@@ -78,7 +78,7 @@ export default function AboutSec() {
               />
             </div>
             <FrameHeader>
-              <FrameTitle className="text-4xl text-center font-lora text-secondary font-bold drop-shadow-lg">
+              <FrameTitle className="text-4xl text-center md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
                 About
               </FrameTitle>
               <FrameDescription className="text-lg md:text-xl tracking-tight mt-2 font-lora italic text-secondary text-justify">
