@@ -41,6 +41,7 @@ export default function AboutSec() {
           bg-[radial-gradient(circle_at_50%_0%,rgba(120,170,255,0.95)_0%,rgba(70,130,255,0.65)_35%,rgba(40,90,210,0.35)_60%,rgba(0,0,0,0)_78%)]
           blur-xl sm:blur-2xl opacity-80 sm:opacity-85 md:opacity-90"
       />
+
       {/* Top left gradient - responsive size and position */}
       <div className="absolute bottom-0 left-[-20%] sm:left-[-15%] md:left-[-10%] right-0 top-[-10%] sm:top-[-5%] h-[200px] w-[200px] sm:h-[300px] sm:w-[300px] md:h-[400px] md:w-[400px] lg:h-[500px] lg:w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(211,211,211,0.15),rgba(255,255,255,0))] opacity-30 sm:opacity-35 md:opacity-40" />
       {/* Bottom center gradient - responsive */}
@@ -53,6 +54,14 @@ export default function AboutSec() {
           bg-[radial-gradient(circle_80rem_at_60%_140%,oklch(0.49_0.22_264)_10%,oklch(0.49_0.22_264/0.7)_65%,oklch(0.49_0.22_264/0.45)_20%,rgba(5,10,40,0)_85%)]
           blur-xl sm:blur-2xl opacity-90 sm:opacity-95
         "
+      />
+      <div
+        className="pointer-events-none absolute left-1/2 -bottom-16 sm:-bottom-24 md:-bottom-32
+          h-32 w-full sm:h-48 sm:w-[110%] md:h-64 md:w-[115%] lg:h-72 lg:w-[120%]
+          -translate-x-1/2
+          rounded-t-full
+          bg-[radial-gradient(circle_at_50%_100%,rgba(120,170,255,0.95)_0%,rgba(70,130,255,0.65)_35%,rgba(40,90,210,0.35)_60%,rgba(0,0,0,0)_78%)]
+          blur-xl sm:blur-2xl opacity-80 sm:opacity-85 md:opacity-90"
       />
 
       {/* Purple oval focus light - responsive gradient sizes */}
