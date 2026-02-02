@@ -64,7 +64,7 @@ export default function RootLayout({
           forcedTheme="light"
           disableTransitionOnChange
         >
-          <div className="flex flex-col min-h-screen items-center justify-center overflow-x-hidden">
+          <div className="flex bg-[#05193B] flex-col min-h-screen items-center justify-center overflow-x-hidden">
             <SiteNavbar />
             {children}
             <SmoothCursor />

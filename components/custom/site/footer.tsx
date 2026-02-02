@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { socials } from "@/lib/constants";
 import Image from "next/image";
 import Link from "next/link";
@@ -78,7 +77,7 @@ export default function SiteFooter() {
         </div>
 
         <div className="w-full">
-          <div className="grid grid-cols-3 md:grid-cols-4 my-5 gap-20">
+          <div className="grid grid-cols-2 md:grid-cols-4 my-5 gap-20">
             <div className="flex flex-col gap-3">
               <span className="font-semibold text-white">Quick Links</span>
               <Link href={"/"} className="hover:text-secondary text-gray-400">
@@ -158,11 +157,7 @@ export default function SiteFooter() {
             <div className="flex flex-col gap-3">
               <span className="font-semibold text-white">Archives</span>
               <Link href={"#"} className="hover:text-secondary text-gray-400">
-                DEXTRIEX 4.0
-              </Link>
-
-              <Link href={"#"} className="hover:text-secondary text-gray-400">
-                DEXTRIEX 3.0
+                DEXTRIEX 1.0
               </Link>
 
               <Link href={"#"} className="hover:text-secondary text-gray-400">
@@ -170,7 +165,19 @@ export default function SiteFooter() {
               </Link>
 
               <Link href={"#"} className="hover:text-secondary text-gray-400">
+                DEXTRIEX 3.0
+              </Link>
+
+              <Link href={"#"} className="hover:text-secondary text-gray-400">
+                DEXTRIEX 4.0
+              </Link>
+
+              <Link href={"#"} className="hover:text-secondary text-gray-400">
                 NASA Challenge
+              </Link>
+
+              <Link href={"#"} className="hover:text-secondary text-gray-400">
+                SMART INDIA HACKATHON
               </Link>
             </div>
           </div>

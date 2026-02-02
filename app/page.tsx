@@ -9,31 +9,31 @@ import SponsorSec from "@/components/custom/site/sections/sponsor.sec";
 export default function Home() {
   return (
     <div className="flex flex-col w-full">
-      <section id="hero" className="bg-[#05193B]">
+      <section id="hero">
         <HeroSec />
       </section>
 
-      <section id="about" className="bg-[#05193B]">
+      <section id="about">
         <AboutSec />
       </section>
 
-      <section id="schedule" className="bg-[#05193B]">
+      <section id="schedule">
         <ScheduleSec />
       </section>
 
-      <section id="events" className="bg-[#05193B]">
+      <section id="events">
         <EventsSec />
       </section>
 
-      <section id="sponsor" className="bg-[#05193B]">
+      <section id="sponsor">
         <SponsorSec />
       </section>
 
-      <section id="prize" className="bg-[#05193B]">
+      <section id="prize">
         <PrizeSec />
       </section>
 
-      <section id="contact" className="bg-[#05193B]">
+      <section id="contact">
         <ContactSec />
       </section>
     </div>
