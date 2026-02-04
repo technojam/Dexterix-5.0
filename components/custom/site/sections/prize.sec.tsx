@@ -45,11 +45,11 @@ export default function PrizeSec() {
 
   return (
     <div className="relative flex h-full w-full overflow-hidden">
-      {/* <StarsBackground
+      <StarsBackground
         starDensity={0.005}
         minTwinkleSpeed={1}
         className="flex z-300"
-      /> */}
+      />
       <FloatingPlanets layoutId={1} />
       {/* <Image
         src={"/img/bg-stars.png"}

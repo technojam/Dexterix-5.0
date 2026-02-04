@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 interface TimelineEntry {
   title: string;
-  content: React.ReactNode;
+  content?: React.ReactNode;
 }
 
 export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
@@ -61,14 +61,14 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
           style={{
             height: height + "px",
           }}
-          className="absolute left-8 md:left-1/2 top-0 -ml-[1px] w-[2px] bg-[linear-gradient(to_bottom,var(--tw-gradient-stops))] from-transparent from-[0%] via-neutral-200 dark:via-neutral-700 to-transparent to-[99%] [mask-image:linear-gradient(to_bottom,transparent_0%,black_10%,black_90%,transparent_100%)]"
+          className="absolute left-8 md:left-1/2 top-0 -ml-[1px] w-[2px] bg-[linear-gradient(to_bottom,var(--tw-gradient-stops))] from-transparent from-[0%] via-slate-700 dark:via-slate-700 to-transparent to-[99%] [mask-image:linear-gradient(to_bottom,transparent_0%,black_10%,black_90%,transparent_100%)]"
         >
           <motion.div
             style={{
               height: heightTransform,
               opacity: opacityTransform,
             }}
-            className="absolute inset-x-0 top-0 w-full bg-gradient-to-t from-purple-500 via-blue-500 to-transparent from-[0%] via-[10%] rounded-full"
+            className="absolute inset-x-0 top-0 w-full bg-gradient-to-t from-purple-500 via-blue-500 to-transparent from-[0%] via-[10%] rounded-full shadow-[0_0_15px_rgba(168,85,247,0.5)]"
           />
         </div>
 
@@ -78,25 +78,26 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
           return (
             <div
               key={index}
-              className="relative grid grid-cols-[auto_1fr] md:grid-cols-[1fr_auto_1fr] items-start gap-x-4 md:gap-x-10 py-10 md:py-20"
+              className="relative grid grid-cols-[auto_1fr] md:grid-cols-[1fr_auto_1fr] items-center gap-x-4 md:gap-x-10 py-10 md:py-16"
             >
               {/* Left Column - Desktop Only */}
               <div
-                className={`hidden md:flex flex-col ${isRight ? "opacity-0" : "text-right items-end"}`}
+                className={`hidden md:flex flex-col ${isRight ? "opacity-0 pointer-events-none" : "text-right items-end"}`}
               >
                 {!isRight && (
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="md:pr-4 bg-white/5 backdrop-blur-sm border border-neutral-200/20 dark:border-neutral-700/50 rounded-2xl p-6 shadow-xl w-full"
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="md:pr-8 w-full"
                   >
-                    <h3 className="text-xl md:text-3xl font-bold text-neutral-800 dark:text-neutral-200 mb-4">
-                      {item.title}
-                    </h3>
-                    {item.content}
+                    <div className="bg-slate-900/40 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-xl hover:bg-slate-900/60 transition-colors duration-300">
+                      <h3 className="text-2xl md:text-4xl font-semibold font-lora bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-white drop-shadow-sm pb-1">
+                        {item.title}
+                      </h3>
+                      {item.content && <div className="mt-4">{item.content}</div>}
+                    </div>
                   </motion.div>
                 )}
               </div>
@@ -105,7 +106,7 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
               <div className="relative flex flex-col items-center z-20 w-16 md:w-auto">
                 <div
                   ref={index === data.length - 1 ? lastDotRef : null}
-                  className="h-4 w-4 rounded-full bg-neutral-200 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 mt-8 md:mt-10 shadow-sm"
+                  className="h-4 w-4 md:h-6 md:w-6 rounded-full bg-slate-950 border-2 border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.6)] z-10"
                 />
               </div>
 
@@ -116,33 +117,36 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
                 {/* Desktop Right (Even) OR Mobile Right (Even) */}
                 {isRight && (
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="md:pl-4 bg-white/5 backdrop-blur-sm border border-neutral-200/20 dark:border-neutral-700/50 rounded-2xl p-6 shadow-xl w-full"
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="md:pl-8 w-full"
                   >
-                    <h3 className="text-xl md:text-3xl font-bold text-neutral-800 dark:text-neutral-200 mb-4">
-                      {item.title}
-                    </h3>
-                    {item.content}
+                     <div className="bg-slate-900/40 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-xl hover:bg-slate-900/60 transition-colors duration-300">
+                      <h3 className="text-2xl md:text-4xl font-semibold font-lora bg-clip-text text-transparent bg-gradient-to-r from-purple-200 to-white drop-shadow-sm pb-1">
+                        {item.title}
+                      </h3>
+                      {item.content && <div className="mt-4">{item.content}</div>}
+                    </div>
                   </motion.div>
                 )}
+                
                 {/* Mobile Left (Odd) - Shown here on mobile */}
                 {!isRight && (
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="md:hidden text-left pl-0 bg-white/5 backdrop-blur-sm border border-neutral-200/20 dark:border-neutral-700/50 rounded-2xl p-6 shadow-xl w-full"
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="md:hidden text-left pl-0 w-full"
                   >
-                    <h3 className="text-xl font-bold text-neutral-800 dark:text-neutral-200 mb-4">
-                      {item.title}
-                    </h3>
-                    {item.content}
+                     <div className="bg-slate-900/40 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-xl hover:bg-slate-900/60 transition-colors duration-300">
+                      <h3 className="text-2xl md:text-4xl font-semibold font-lora bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-white drop-shadow-sm pb-1">
+                        {item.title}
+                      </h3>
+                      {item.content && <div className="mt-4">{item.content}</div>}
+                    </div>
                   </motion.div>
                 )}
               </div>

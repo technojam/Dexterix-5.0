@@ -18,7 +18,7 @@ export function SiteNavbar() {
             href={constants.socials.insta}
             target="_blank"
             rel="noreferrer"
-            className="hidden md:flex"
+            className="flex"
           >
             <div
               className={cn(
@@ -42,7 +42,7 @@ export function SiteNavbar() {
             href={constants.socials.discord}
             target="_blank"
             rel="noreferrer"
-            className="hidden md:flex"
+            className="flex"
           >
             <div
               className={cn(

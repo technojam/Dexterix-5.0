@@ -69,11 +69,11 @@ export default function ContactSec() {
 
   return (
     <div className="relative flex h-full w-full overflow-hidden">
-      {/* <StarsBackground
+      <StarsBackground
         starDensity={0.005}
         minTwinkleSpeed={1}
         className="flex z-0"
-      /> */}
+      />
       {/* <Image
         src={"/img/bg-space.png"}
         alt="bg"

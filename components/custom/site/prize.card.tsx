@@ -207,9 +207,9 @@ const PrizeCard = ({
               {rankOrdinal[rank]} Place
             </h3>
 
-            <p className="text-white/80 text-sm md:text-base mb-3 font-medium">
+            {/* <p className="text-white/80 text-sm md:text-base mb-3 font-medium">
               {prizeName}
-            </p>
+            </p> */}
 
             <div
               className={`
@@ -222,9 +222,9 @@ const PrizeCard = ({
               {prizeValue}
             </div>
 
-            {winnerName && (
+            {/* {winnerName && (
               <p className="text-white/60 text-xs mt-3 italic">{winnerName}</p>
-            )}
+            )} */}
           </div>
         </div>
 

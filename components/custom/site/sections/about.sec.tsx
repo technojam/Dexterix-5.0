@@ -11,11 +11,11 @@ import { FloatingPlanets } from "../sub/floating-planets";
 export default function AboutSec() {
   return (
     <div className="relative flex min-h-screen items-center justify-center w-full overflow-hidden">
-      {/* <StarsBackground
+      <StarsBackground
         starDensity={0.005}
         minTwinkleSpeed={1}
         className="flex z-300"
-      /> */}
+      />
       <FloatingPlanets layoutId={1} />
       {/* <Image
         src={"/img/bg-stars2.png"}

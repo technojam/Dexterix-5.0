@@ -1,5 +1,4 @@
 import { StarsBackground } from "@/components/ui/stars-bg";
-import Image from "next/image";
 import ImageStackCarousel from "../image.stack";
 import { FloatingPlanets } from "../sub/floating-planets";
 
@@ -7,54 +6,101 @@ import { FloatingPlanets } from "../sub/floating-planets";
 const images = [
   {
     id: 1,
-    src: "/img/bg-space.png",
-    alt: "Opening Ceremony",
-    title: "Opening Ceremony",
+    src: "/img/events/Dex-1.1.png",
+    alt: "Dexterix 1.1",
+    title: "Dexterix 1.1",
     description:
-      "Join us for the grand opening of Dexterix 2026. Experience the beginning of an incredible journey.",
+      "First ever Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
   },
   {
     id: 2,
-    src: "/img/bg-space.png",
-    alt: "Hackathon",
-    title: "24-Hour Hackathon",
+    src: "/img/events/Dex-2.1.png",
+    alt: "Dexterix 2.1",
+    title: "Dexterix 2.1",
     description:
-      "Code, create, and innovate in our flagship 24-hour hackathon. Build the future with your team.",
+      "Second edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
   },
   {
     id: 3,
-    src: "/img/bg-space.png",
-    alt: "Tech Talks",
-    title: "Tech Talks & Workshops",
+    src: "/img/events/Dex-2.2.png",
+    alt: "Dexterix 2.2",
+    title: "Dexterix 2.2",
     description:
-      "Learn from industry experts and enhance your skills with hands-on workshops and insightful talks.",
+      "Third edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
   },
   {
     id: 4,
-    src: "/img/bg-space.png",
-    alt: "Gaming Tournament",
-    title: "Gaming Tournament",
+    src: "/img/events/Dex-2.3.png",
+    alt: "Dexterix 2.3",
+    title: "Dexterix 2.3",
     description:
-      "Compete in exciting gaming tournaments and show off your skills in popular esports titles.",
+      "Fourth edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
   },
   {
     id: 5,
-    src: "/img/bg-space.png",
-    alt: "Closing Ceremony",
-    title: "Closing Ceremony",
+    src: "/img/events/Dex-3.1.png",
+    alt: "Dexterix 3.1",
+    title: "Dexterix 3.1",
     description:
-      "Celebrate achievements and announcements of winners. A memorable conclusion to an amazing event.",
+      "Fifth edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
+  },{
+    id: 6,
+    src: "/img/events/Dex-3.2.png",
+    alt: "Dexterix 3.2",
+    title: "Dexterix 3.2",
+    description:
+      "Sixth edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
+  },
+  {
+    id: 7,
+    src: "/img/events/Dex-3.3.png",
+    alt: "Dexterix 3.3",
+    title: "Dexterix 3.3",
+    description:
+      "Seventh edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
+  },
+  {
+    id: 8,
+    src: "/img/events/nasa-1.1.png",
+    alt: "NASA 1.1",
+    title: "NASA 1.1",
+    description:
+      "First edition of NASA, a 36-hour hackathon organized by the Team TechnoJam.",
+  },
+  {
+    id: 9,
+    src: "/img/events/nasa-2.1.png",
+    alt: "NASA 2.1",
+    title: "NASA 2.1",
+    description:
+      "Second edition of NASA, a 36-hour hackathon organized by the Team TechnoJam.",
+  },
+  {
+    id: 10,
+    src: "/img/events/nasa-2.2.png",
+    alt: "NASA 2.2",
+    title: "NASA 2.2",
+    description:
+      "Third edition of NASA, a 36-hour hackathon organized by the Team TechnoJam.",
+  },
+  {
+    id: 11,
+    src: "/img/events/alexa-student-day.png",
+    alt: "Alexa Student Day",
+    title: "Alexa Student Day",
+    description:
+      "First edition of Alexa Student Day, a 36-hour hackathon organized by the Team TechnoJam.",
   },
 ];
 
 export default function EventsSec() {
   return (
     <div className="relative flex h-full w-full overflow-hidden">
-      {/* <StarsBackground
+      <StarsBackground
         starDensity={0.005}
         minTwinkleSpeed={1}
-        className="flex z-300"
-      /> */}
+        className="flex z-200"
+      />
       <FloatingPlanets layoutId={1} />
       {/* <Image
         src={"/img/bg-stars.png"}
