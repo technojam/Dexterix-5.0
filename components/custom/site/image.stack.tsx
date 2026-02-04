@@ -145,11 +145,11 @@ const ImageStackCarousel = ({
                     {images[currentIndex].title}
                   </h3>
                 )}
-                {images[currentIndex].description && (
+                {/* {images[currentIndex].description && (
                   <p className="hidden md:block text-lg md:text-xl text-white/90 max-w-2xl drop-shadow-lg">
                     {images[currentIndex].description}
                   </p>
-                )}
+                )} */}
               </motion.div>
             )}
           </motion.div>

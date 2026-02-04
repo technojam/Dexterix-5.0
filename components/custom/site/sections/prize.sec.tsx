@@ -1,6 +1,5 @@
 "use client";
 import { StarsBackground } from "@/components/ui/stars-bg";
-import Image from "next/image";
 import PrizeCard from "../prize.card";
 import { FloatingPlanets } from "../sub/floating-planets";
 
