@@ -9,13 +9,13 @@ export default function HeroSec() {
   return (
     <div className="relative flex h-full w-full overflow-hidden">
       <StarsBackground
-        starDensity={0.005}
+        starDensity={0.0015}
         minTwinkleSpeed={1}
         className="flex z-300"
       />
       <FloatingPlanets layoutId={1} />
       {/* <Image
-        src={"/img/bg-stars.png"}
+        src={"/img/bg-stars.webp"}
         alt="bg"
         fill
         className="absolute inset-0 z-10 w-full h-full object-cover pointer-events-none select-none opacity-10"
@@ -58,7 +58,7 @@ export default function HeroSec() {
         <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-8 p-4 sm:p-8 md:p-12 lg:p-16 xl:p-20">
           <div className="flex flex-col gap-3 sm:gap-4 md:gap-6 max-w-3xl items-center text-center">
             <Image
-              src={"/img/logo.png"}
+              src={"/img/logo.webp"}
               alt="logo"
               height={400}
               width={400}
@@ -80,7 +80,7 @@ export default function HeroSec() {
               <Highlighter action="underline" color="#ffffff">
                 <span className="flex items-center gap-2 mb-1">
                   <Image
-                    src={"/svg/tj.svg"}
+                    src={"/svg/tj.webp"}
                     alt="tj logo"
                     width={32}
                     height={32}
@@ -95,7 +95,7 @@ export default function HeroSec() {
               Brought to you by{" "}
               <span className="flex items-center gap-2 mb-1">
                 <Image
-                  src={"/svg/tj.svg"}
+                  src={"/svg/tj.webp"}
                   alt="tj logo"
                   width={32}
                   height={32}

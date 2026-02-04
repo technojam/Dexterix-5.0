@@ -7,39 +7,39 @@ export default function PrizeSec() {
   const prizes = [
     {
       rank: 1 as const,
-      image: "/img/prize-1st.png",
+      image: "/img/prize-1st.webp",
       prizeName: "Galactic Champion",
-      prizeValue: "$10,000",
+      prizeValue: "₨ 50,000`",
       winnerName: "Commander Nova",
     },
     {
       rank: 2 as const,
-      image: "/img/prize-2nd.png",
+      image: "/img/prize-2nd.webp",
       prizeName: "Space Pioneer",
-      prizeValue: "$5,000",
+      prizeValue: "₨ 35,000`",
       winnerName: "Captain Stellar",
     },
     {
       rank: 3 as const,
-      image: "/img/prize-3rd.png",
+      image: "/img/prize-3rd.webp",
       prizeName: "Cosmic Explorer",
-      prizeValue: "$2,500",
+      prizeValue: "₨ 20,000`",
       winnerName: "Lt. Orion",
     },
     {
       rank: 4 as const,
-      image: "/img/prize-4th.png",
+      image: "/img/prize-4th.webp",
       prizeName: "Nebula Navigator",
-      prizeValue: "$1,000",
+      prizeValue: "₨ 7,500`",
       winnerName: "Pilot Aurora",
     },
-    {
-      rank: 5 as const,
-      image: "/img/prize-5th.png",
-      prizeName: "Starlight Voyager",
-      prizeValue: "$500",
-      winnerName: "Cadet Luna",
-    },
+    // {
+    //   rank: 5 as const,
+    //   image: "/img/prize-5th.webp",
+    //   prizeName: "Starlight Voyager",
+    //   prizeValue: "$500",
+    //   winnerName: "Cadet Luna",
+    // },
   ];
 
   return (
@@ -51,7 +51,7 @@ export default function PrizeSec() {
       />
       <FloatingPlanets layoutId={1} />
       {/* <Image
-        src={"/img/bg-stars.png"}
+        src={"/img/bg-stars.webp"}
         alt="bg"
         fill
         className="absolute inset-0 z-10 w-full h-full object-cover pointer-events-none select-none opacity-10"
@@ -109,20 +109,10 @@ export default function PrizeSec() {
               ))}
           </div>
 
-          {/* Row 2: 2nd & 3rd Place */}
-          <div className="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-16 lg:gap-24 w-full">
+          {/* Row 2: 2nd, 3rd, and 4th Place */}
+          <div className="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-16 lg:gap-8 w-full flex-wrap">
             {prizes
-              .filter((p) => p.rank === 2 || p.rank === 3)
-              .sort((a, b) => a.rank - b.rank)
-              .map((prize) => (
-                <PrizeCard key={prize.rank} {...prize} />
-              ))}
-          </div>
-
-          {/* Row 3: 4th & 5th Place */}
-          <div className="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-12 lg:gap-20 w-full">
-            {prizes
-              .filter((p) => p.rank === 4 || p.rank === 5)
+              .filter((p) => p.rank >= 2 && p.rank <= 4)
               .sort((a, b) => a.rank - b.rank)
               .map((prize) => (
                 <PrizeCard key={prize.rank} {...prize} />

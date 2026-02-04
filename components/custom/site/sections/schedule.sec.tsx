@@ -33,13 +33,13 @@ export default function ScheduleSec() {
   return (
     <div className="relative flex min-h-screen flex-col items-center w-full overflow-hidden">
       <StarsBackground
-        starDensity={0.005}
+        starDensity={0.0015}
         minTwinkleSpeed={1}
         className="flex z-300"
       />
       <FloatingPlanets layoutId={5} />
       {/* <Image
-        src={"/img/bg-stars.png"}
+        src={"/img/bg-stars.webp"}
         alt="bg"
         fill
         className="absolute inset-0 z-10 w-full h-full object-cover pointer-events-none select-none opacity-10"

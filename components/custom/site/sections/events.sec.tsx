@@ -6,90 +6,90 @@ import { FloatingPlanets } from "../sub/floating-planets";
 const images = [
   {
     id: 1,
-    src: "/img/events/Dex-1.1.png",
+    src: "/img/events/Dex-1.1.webp",
     alt: "Dexterix 1.1",
-    title: "Dexterix 1.1",
+    title: "Dexterix 1",
     description:
       "First ever Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
   },
   {
     id: 2,
-    src: "/img/events/Dex-2.1.png",
+    src: "/img/events/Dex-2.1.webp",
     alt: "Dexterix 2.1",
-    title: "Dexterix 2.1",
+    title: "Dexterix 2",
     description:
       "Second edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
   },
   {
     id: 3,
-    src: "/img/events/Dex-2.2.png",
+    src: "/img/events/Dex-2.2.webp",
     alt: "Dexterix 2.2",
-    title: "Dexterix 2.2",
+    title: "Dexterix 2",
+    description:
+      "Second edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
+  },
+  {
+    id: 4,
+    src: "/img/events/Dex-2.3.webp",
+    alt: "Dexterix 2.3",
+    title: "Dexterix 2",
+    description:
+      "Second edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
+  },
+  {
+    id: 5,
+    src: "/img/events/Dex-3.1.webp",
+    alt: "Dexterix 3.1",
+    title: "Dexterix 3",
+    description:
+      "Third edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
+  },{
+    id: 6,
+    src: "/img/events/Dex-3.2.webp",
+    alt: "Dexterix 3.2",
+    title: "Dexterix 3",
     description:
       "Third edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
   },
   {
-    id: 4,
-    src: "/img/events/Dex-2.3.png",
-    alt: "Dexterix 2.3",
-    title: "Dexterix 2.3",
-    description:
-      "Fourth edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
-  },
-  {
-    id: 5,
-    src: "/img/events/Dex-3.1.png",
-    alt: "Dexterix 3.1",
-    title: "Dexterix 3.1",
-    description:
-      "Fifth edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
-  },{
-    id: 6,
-    src: "/img/events/Dex-3.2.png",
-    alt: "Dexterix 3.2",
-    title: "Dexterix 3.2",
-    description:
-      "Sixth edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
-  },
-  {
     id: 7,
-    src: "/img/events/Dex-3.3.png",
+    src: "/img/events/Dex-3.3.webp",
     alt: "Dexterix 3.3",
-    title: "Dexterix 3.3",
+    title: "Dexterix 3",
     description:
-      "Seventh edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
+      "Third edition of Dexterix, a 36-hour hackathon organized by the Team TechnoJam.",
   },
   {
     id: 8,
-    src: "/img/events/nasa-1.1.png",
+    src: "/img/events/nasa-1.1.webp",
     alt: "NASA 1.1",
-    title: "NASA 1.1",
+    title: "NASA Space Apps",
     description:
-      "First edition of NASA, a 36-hour hackathon organized by the Team TechnoJam.",
+      "NASA Space Apps, a 36-hour hackathon organized by the Team TechnoJam.",
   },
   {
     id: 9,
-    src: "/img/events/nasa-2.1.png",
+    src: "/img/events/nasa-2.1.webp",
     alt: "NASA 2.1",
-    title: "NASA 2.1",
+    title: "NASA Space Apps",
     description:
-      "Second edition of NASA, a 36-hour hackathon organized by the Team TechnoJam.",
+      "NASA Space Apps, a 36-hour hackathon organized by the Team TechnoJam.",
   },
   {
     id: 10,
-    src: "/img/events/nasa-2.2.png",
+    src: "/img/events/nasa-2.2.webp",
     alt: "NASA 2.2",
-    title: "NASA 2.2",
+    title: "NASA Space Apps",
     description:
-      "Third edition of NASA, a 36-hour hackathon organized by the Team TechnoJam.",
+      "NASA Space Apps, a 36-hour hackathon organized by the Team TechnoJam.",
   },
   {
     id: 11,
-    src: "/img/events/alexa-student-day.png",
+    src: "/img/events/alexa-student-day.webp",
     alt: "Alexa Student Day",
     title: "Alexa Student Day",
     description:
-      "First edition of Alexa Student Day, a 36-hour hackathon organized by the Team TechnoJam.",
+      "Alexa Student Day, a workshop organized by the Team TechnoJam.",
   },
 ];
 
@@ -103,7 +103,7 @@ export default function EventsSec() {
       />
       <FloatingPlanets layoutId={1} />
       {/* <Image
-        src={"/img/bg-stars.png"}
+        src={"/img/bg-stars.webp"}
         alt="bg"
         fill
         className="absolute inset-0 z-10 w-full h-full object-cover pointer-events-none select-none opacity-10"

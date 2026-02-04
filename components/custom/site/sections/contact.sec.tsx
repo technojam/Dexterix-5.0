@@ -75,7 +75,7 @@ export default function ContactSec() {
         className="flex z-0"
       />
       {/* <Image
-        src={"/img/bg-space.png"}
+        src={"/img/bg-space.webp"}
         alt="bg"
         fill
         className="absolute opacity-25 inset-0 z-0 w-full h-full object-cover pointer-events-none select-none"
@@ -83,7 +83,7 @@ export default function ContactSec() {
         draggable={false}
       /> */}
       {/* <Image
-        src={"/img/bg-stars2.png"}
+        src={"/img/bg-stars2.webp"}
         alt="bg"
         fill
         className="absolute inset-0 z-10 w-full h-full object-cover pointer-events-none select-none opacity-10"

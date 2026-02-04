@@ -18,7 +18,7 @@ export default function AboutSec() {
       />
       <FloatingPlanets layoutId={1} />
       {/* <Image
-        src={"/img/bg-stars2.png"}
+        src={"/img/bg-stars2.webp"}
         alt="bg"
         fill
         className="absolute inset-0 z-10 w-full h-full object-cover pointer-events-none select-none opacity-10"
@@ -71,7 +71,7 @@ export default function AboutSec() {
             {/* Top right image - adjust src and sizes as needed */}
             <div className="absolute -top-3 md:-top-20 right-4 z-20">
               <Image
-                src="/img/astronut.png"
+                src="/img/astronut.webp"
                 alt="Decorative"
                 width={100}
                 height={100}

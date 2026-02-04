@@ -5,14 +5,14 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const PLANETS = [
-  "/svg/planet01.svg",
-  "/svg/planet02.svg",
-  "/svg/planet03.svg",
-  "/svg/planet04.svg",
-  "/svg/planet05.svg",
-  "/svg/planet06.svg",
-  "/svg/planet07.svg",
-  "/svg/planet08.svg",
+  "/svg/planet01.webp",
+  "/svg/planet02.webp",
+  "/svg/planet03.webp",
+  "/svg/planet04.webp",
+  "/svg/planet05.webp",
+  "/svg/planet06.webp",
+  "/svg/planet07.webp",
+  "/svg/planet08.webp",
 ];
 
 interface PlanetData {

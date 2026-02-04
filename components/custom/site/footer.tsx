@@ -9,7 +9,7 @@ export default function SiteFooter() {
       className="relative flex flex-col h-full w-full text-center mt-auto mb-2/5 bg-[#05193B]"
     >
       <Image
-        src={"/img/bg-earth.png"}
+        src={"/img/bg-earth.webp"}
         alt="bg"
         fill
         className="absolute inset-0 top-10 z-50 opacity-35 w-full h-full object-cover pointer-events-none select-none"
@@ -17,7 +17,7 @@ export default function SiteFooter() {
         draggable={false}
       />
       <Image
-        src={"/img/bg-stars2.png"}
+        src={"/img/bg-stars2.webp"}
         alt="bg"
         fill
         className="absolute inset-0 z-10 w-full h-full object-cover pointer-events-none select-none opacity-10"
@@ -40,7 +40,7 @@ export default function SiteFooter() {
         >
           <div className="relative overflow-hidden rounded">
             <Image
-              src="/img/logo.png"
+              src="/img/logo.webp"
               alt="logo"
               className="object-center object-cover"
               width={60}
@@ -80,7 +80,7 @@ export default function SiteFooter() {
           <div className="grid grid-cols-2 md:grid-cols-4 my-5 gap-20">
             <div className="flex flex-col gap-3">
               <span className="font-semibold text-white">Quick Links</span>
-              <Link href={"/"} className="hover:text-secondary text-gray-400">
+              <Link href={"#hero"} className="hover:text-secondary text-gray-400">
                 Home
               </Link>
               <Link
@@ -90,22 +90,34 @@ export default function SiteFooter() {
                 About
               </Link>
               <Link
-                href={"#sponsors"}
+                href={"#schedule"}
+                className="hover:text-secondary text-gray-400"
+              >
+                Schedule
+              </Link>
+              <Link
+                href={"#events"}
+                className="hover:text-secondary text-gray-400"
+              >
+                Events
+              </Link>
+              <Link
+                href={"#sponsor"}
                 className="hover:text-secondary text-gray-400"
               >
                 Sponsors
+              </Link>
+              <Link
+                href={"#prize"}
+                className="hover:text-secondary text-gray-400"
+              >
+                Prizes
               </Link>
               <Link
                 href={"#contact"}
                 className="hover:text-secondary text-gray-400"
               >
                 Contact
-              </Link>
-              <Link
-                href={"#faq"}
-                className="hover:text-secondary text-gray-400"
-              >
-                FAQ
               </Link>
             </div>
 
@@ -145,7 +157,7 @@ export default function SiteFooter() {
 
             <div className="flex flex-col gap-3">
               <span className="font-semibold text-white">Resources</span>
-              <Link href={"#"} className="hover:text-secondary text-gray-400">
+              <Link href={"https://drive.google.com/file/d/1BOJiTp_Ms9sBKN36NTd7s9coyrL9KQhb/view?usp=drive_link"} className="hover:text-secondary text-gray-400">
                 Sponsorship Brochure
               </Link>
 
@@ -156,28 +168,25 @@ export default function SiteFooter() {
 
             <div className="flex flex-col gap-3">
               <span className="font-semibold text-white">Archives</span>
-              <Link href={"#"} className="hover:text-secondary text-gray-400">
-                DEXTRIEX 1.0
-              </Link>
 
-              <Link href={"#"} className="hover:text-secondary text-gray-400">
+              <Link href={"https://www.instagram.com/p/B5ZB_tbnaVw/?img_index=1"} className="hover:text-secondary text-gray-400">
                 DEXTRIEX 2.0
               </Link>
 
-              <Link href={"#"} className="hover:text-secondary text-gray-400">
+              <Link href={"https://www.instagram.com/p/CgCTkF2MAM9/?img_index=1"} className="hover:text-secondary text-gray-400">
                 DEXTRIEX 3.0
               </Link>
 
-              <Link href={"#"} className="hover:text-secondary text-gray-400">
+              <Link href={"https://www.instagram.com/p/C5hhV4gPDax/?igsh=MWVvMjczeWZreDdwdw=="} className="hover:text-secondary text-gray-400">
                 DEXTRIEX 4.0
               </Link>
 
-              <Link href={"#"} className="hover:text-secondary text-gray-400">
-                NASA Challenge
+              <Link href={"https://www.instagram.com/p/CjNY8ypvmeX/?img_index=1"} className="hover:text-secondary text-gray-400">
+                NASA Space Apps Challenge
               </Link>
 
-              <Link href={"#"} className="hover:text-secondary text-gray-400">
-                SMART INDIA HACKATHON
+              <Link href={"https://www.instagram.com/p/DOD-1YcAYDY/?igsh=MW1yaTJodWdsanU0eA=="} className="hover:text-secondary text-gray-400">
+                SMART INDIA HACKATHON 2025
               </Link>
             </div>
           </div>

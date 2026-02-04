@@ -29,7 +29,7 @@ export function SiteNavbar() {
               )}
             >
               <Image
-                src={"/svg/insta.svg"}
+                src={"/svg/insta.webp"}
                 height={40}
                 width={40}
                 alt="ig"
@@ -53,7 +53,7 @@ export function SiteNavbar() {
               )}
             >
               <Image
-                src={"/svg/discord.svg"}
+                src={"/svg/discord.webp"}
                 height={40}
                 width={40}
                 alt="ig"
@@ -77,7 +77,7 @@ export function SiteNavbar() {
               )}
             >
               <Image
-                src={"/svg/x.svg"}
+                src={"/svg/x.webp"}
                 height={40}
                 width={40}
                 alt="ig"
@@ -101,7 +101,7 @@ export function SiteNavbar() {
               )}
             >
               <Image
-                src={"/svg/linkedin.svg"}
+                src={"/svg/linkedin.webp"}
                 height={40}
                 width={40}
                 alt="ig"

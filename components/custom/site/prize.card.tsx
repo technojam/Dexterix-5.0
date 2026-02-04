@@ -69,7 +69,7 @@ const rankStyles = {
   },
 };
 
-const rankOrdinal = ["", "1st", "2nd", "3rd", "4th", "5th"];
+const rankOrdinal = ["", "Winner", "Runner up", "Second Runner up", "All Best Girls team", ""];
 
 const PrizeCard = ({
   rank,
@@ -151,15 +151,10 @@ const PrizeCard = ({
               ring-4 ring-white/10
               shadow-2xl
             `}
-            animate={
-              rank === 1
-                ? {
-                    y: [0, -8, 0],
-                    scale: [1, 1.02, 1],
-                  }
-                : {}
-            }
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            animate={{ // Reduced animation complexity
+                y: [0, -4, 0],
+            }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           >
             <Image
               src={image}
@@ -177,21 +172,19 @@ const PrizeCard = ({
             `}
             />
 
-            {/* Shimmer effect for 1st place */}
-            {rank === 1 && (
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+            {/* Shimmer effect for ALL ranks, but slightly different delays to avoid uniform movement */}
+            <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" // Reduced opacity
                 animate={{
-                  x: ["-100%", "100%"],
+                  translateX: ["-100%", "100%"], // Using translateX is better for performance than x string %
                 }}
                 transition={{
                   duration: 3,
                   repeat: Infinity,
                   ease: "linear",
-                  repeatDelay: 1,
+                  repeatDelay: 2 + (rank * 0.5), // Staggered delays
                 }}
               />
-            )}
           </motion.div>
 
           {/* Prize Info */}
@@ -204,7 +197,7 @@ const PrizeCard = ({
               drop-shadow-lg
             `}
             >
-              {rankOrdinal[rank]} Place
+              {rankOrdinal[rank]}
             </h3>
 
             {/* <p className="text-white/80 text-sm md:text-base mb-3 font-medium">
@@ -228,33 +221,31 @@ const PrizeCard = ({
           </div>
         </div>
 
-        {/* Sparkle effects for 1st place */}
-        {rank === 1 && (
+        {/* Sparkle effects for ALL ranks */}
           <>
             <motion.div
               className="absolute top-8 right-12"
               animate={{
-                opacity: [0, 1, 0],
-                scale: [0.5, 1.2, 0.5],
+                opacity: [0, 0.8, 0], // Reduced max opacity
+                scale: [0.5, 1, 0.5],
                 rotate: [0, 180, 360],
               }}
-              transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+              transition={{ duration: 3, repeat: Infinity, delay: 0.5 + (rank * 0.2) }} // Staggered
             >
-              <Sparkles className="w-5 h-5 text-yellow-300" />
+              <Sparkles className={`w-5 h-5 ${rank === 1 ? 'text-yellow-300' : 'text-white/40'}`} />
             </motion.div>
             <motion.div
               className="absolute bottom-16 left-8"
               animate={{
-                opacity: [0, 1, 0],
-                scale: [0.5, 1.2, 0.5],
+                opacity: [0, 0.8, 0],
+                scale: [0.5, 1, 0.5],
                 rotate: [360, 180, 0],
               }}
-              transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+              transition={{ duration: 3, repeat: Infinity, delay: 1.5 + (rank * 0.2) }} // Staggered
             >
-              <Sparkles className="w-4 h-4 text-yellow-300" />
+              <Sparkles className={`w-4 h-4 ${rank === 1 ? 'text-yellow-300' : 'text-white/40'}`} />
             </motion.div>
           </>
-        )}
       </div>
     </motion.div>
   );

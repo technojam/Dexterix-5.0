@@ -83,9 +83,9 @@ const DefaultCursorSVG: FC = () => {
 export function SmoothCursor({
   cursor = <DefaultCursorSVG />,
   springConfig = {
-    damping: 45,
-    stiffness: 400,
-    mass: 1,
+    damping: 40,
+    stiffness: 1200,
+    mass: 0.2,
     restDelta: 0.001,
   },
 }: SmoothCursorProps) {
@@ -100,16 +100,28 @@ export function SmoothCursor({
   const cursorY = useSpring(0, springConfig);
   const rotation = useSpring(0, {
     ...springConfig,
-    damping: 60,
+    damping: 20,
     stiffness: 300,
   });
   const scale = useSpring(1, {
     ...springConfig,
     stiffness: 500,
-    damping: 35,
+    damping: 25,
   });
 
+  const [isVisible, setIsVisible] = useState(false);
+
   useEffect(() => {
+    // Only show custom cursor on devices with fine pointer (mouse)
+    // and screens larger than mobile breakpoint
+    const isDesktop = window.matchMedia("(pointer: fine) and (min-width: 768px)").matches;
+    
+    if (!isDesktop) {
+        return;
+    }
+
+    setIsVisible(true);
+
     const updateVelocity = (currentPos: Position) => {
       const currentTime = Date.now();
       const deltaTime = currentTime - lastUpdateTime.current;
@@ -179,6 +191,8 @@ export function SmoothCursor({
       if (rafId) cancelAnimationFrame(rafId);
     };
   }, [cursorX, cursorY, rotation, scale]);
+
+  if (!isVisible) return null;
 
   return (
     <motion.div

@@ -13,7 +13,7 @@ export function MainNavbar() {
         className="mr-8 flex items-center space-x-2"
       >
         <Image
-          src="/img/logo.png"
+          src="/img/logo.webp"
           alt="Logo"
           width={40}
           height={40}
