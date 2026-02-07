@@ -170,15 +170,15 @@ export default function SiteFooter() {
               <span className="font-semibold text-white">Archives</span>
 
               <Link href={"https://www.instagram.com/p/B5ZB_tbnaVw/?img_index=1"} className="hover:text-secondary text-gray-400">
-                DEXTRIEX 2.0
+                DEXTERIX 2.0
               </Link>
 
               <Link href={"https://www.instagram.com/p/CgCTkF2MAM9/?img_index=1"} className="hover:text-secondary text-gray-400">
-                DEXTRIEX 3.0
+                DEXTERIX 3.0
               </Link>
 
               <Link href={"https://www.instagram.com/p/C5hhV4gPDax/?igsh=MWVvMjczeWZreDdwdw=="} className="hover:text-secondary text-gray-400">
-                DEXTRIEX 4.0
+                DEXTERIX 4.0
               </Link>
 
               <Link href={"https://www.instagram.com/p/CjNY8ypvmeX/?img_index=1"} className="hover:text-secondary text-gray-400">

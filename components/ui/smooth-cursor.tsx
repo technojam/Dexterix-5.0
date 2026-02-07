@@ -83,9 +83,9 @@ const DefaultCursorSVG: FC = () => {
 export function SmoothCursor({
   cursor = <DefaultCursorSVG />,
   springConfig = {
-    damping: 40,
-    stiffness: 1200,
-    mass: 0.2,
+    damping: 30,
+    stiffness: 2500,
+    mass: 0.1,
     restDelta: 0.001,
   },
 }: SmoothCursorProps) {
@@ -150,8 +150,7 @@ export function SmoothCursor({
 
       if (speed > 0.1) {
         const currentAngle =
-          Math.atan2(velocity.current.y, velocity.current.x) * (180 / Math.PI) +
-          90;
+          Math.atan2(velocity.current.y, velocity.current.x) * (180 / Math.PI);
 
         let angleDiff = currentAngle - previousAngle.current;
         if (angleDiff > 180) angleDiff -= 360;
@@ -182,12 +181,25 @@ export function SmoothCursor({
       });
     };
 
+    const style = document.createElement('style');
+    style.innerHTML = `
+      * {
+        cursor: none !important;
+      }
+    `;
+    style.id = 'smooth-cursor-style';
+    document.head.appendChild(style);
+
     document.body.style.cursor = "none";
     window.addEventListener("mousemove", throttledMouseMove);
 
     return () => {
       window.removeEventListener("mousemove", throttledMouseMove);
       document.body.style.cursor = "auto";
+      const styleElement = document.getElementById('smooth-cursor-style');
+      if (styleElement) {
+        styleElement.remove();
+      }
       if (rafId) cancelAnimationFrame(rafId);
     };
   }, [cursorX, cursorY, rotation, scale]);
