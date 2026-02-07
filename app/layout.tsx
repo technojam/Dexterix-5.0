@@ -46,7 +46,7 @@ const fontLora = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Dextrix 5.0 by Team TechnoJam",
+  title: "Dexterix 5.0 by Team TechnoJam",
   description: "Finding the next gen DEXTERS",
 };
 
