@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 export async function PATCH(req: Request) {
     // 1. Auth Check (Admins OR Volunteers)
     const cookieStore = await cookies();
-    const sessionToken = cookieStore.get("admin_session")?.value;
+    const sessionToken = cookieStore.get("session")?.value;
     
     if (!sessionToken) {
          return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -38,7 +38,6 @@ export async function PATCH(req: Request) {
         if (problemStatementId !== undefined) {
              // If null is passed, it clears problemStatementId
              // If string is passed, it sets it.
-             // @ts-ignore
              team.problemStatementId = problemStatementId === null ? undefined : problemStatementId;
         }
 

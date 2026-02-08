@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 
 async function verifyAuthAndGetRole() {
     const cookieStore = await cookies();
-    const sessionToken = cookieStore.get("admin_session")?.value;
+    const sessionToken = cookieStore.get("session")?.value;
     if (!sessionToken) return null;
     
     const user = await authService.getUserFromSession(sessionToken);

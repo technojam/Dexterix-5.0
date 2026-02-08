@@ -1,66 +1,102 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { SignJWT, jwtVerify } from "jose";
-
-const SECRET_KEY = new TextEncoder().encode(process.env.JWT_SECRET || "default-secret-key-change-it");
 
 export async function proxy(req: NextRequest) {
-  const res = NextResponse.next();
+  // ----------------------------------------------------------------------
+  // 1. FIREWALL & SECURITY (WAF-Lite)
+  // ----------------------------------------------------------------------
+  
+  // 1.1 Block Suspicious User Agents (Scanners/Bots)
+  const userAgent = req.headers.get("user-agent")?.toLowerCase() || "";
+  const blockedAgents = ["burp", "sqlmap", "nmap", "nikto", "metasploit", "acunetix", "nessus", "openvas"];
+  if (blockedAgents.some(agent => userAgent.includes(agent))) {
+     return new NextResponse(null, { status: 403, statusText: "Forbidden" });
+  }
 
-  // 1. Security Headers (Firewall-like logic)
-  res.headers.set("X-XSS-Protection", "1; mode=block");
-  res.headers.set("X-Frame-Options", "DENY");
-  res.headers.set("X-Content-Type-Options", "nosniff");
-  res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  res.headers.set(
-    "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://dexterix5.documents.azure.com;"
-  );
-  res.headers.set(
-    "Strict-Transport-Security",
-    "max-age=63072000; includeSubDomains; preload"
-  );
-  res.headers.set(
-    "Permissions-Policy", 
-    "camera=(), microphone=(), geolocation=(), browsing-topics=(), payment=()"
-  );
-
-  // 1.1 HTTP Method Restriction (Verbs Protection)
+  // 1.2 HTTP Method Restriction
   const allowedMethods = ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"];
   if (!allowedMethods.includes(req.method)) {
     return new NextResponse(null, { status: 405, statusText: "Method Not Allowed" });
   }
 
-  // 1.2 Block Suspicious User Agents (Anti-Scanner/Bot)
-  const userAgent = req.headers.get("user-agent")?.toLowerCase() || "";
-  const blockedAgents = ["burp", "sqlmap", "nmap", "nikto", "metasploit", "acunetix"];
-  if (blockedAgents.some(agent => userAgent.includes(agent))) {
-     return new NextResponse(null, { status: 403, statusText: "Forbidden" });
+  // 1.3 URL Attack Pattern Detection (Basic SQLi/XSS/Traversal)
+  // Decoded path/search for inspection
+  const url = req.nextUrl.toString().toLowerCase();
+  const dangerousPatterns = [
+    "select%20", "union%20", "insert%20",        // SQLi
+    "<script", "%3cscript", "javascript:",       // XSS
+    "../", "..\\", "%2e%2e%2f", "%2e%2e%5c",     // Path Traversal
+    "/etc/passwd", "win.ini", "boot.ini"         // System Files
+  ];
+
+  // Exclude some patterns if they are legitimate parts of query (e.g. "select" in a search term is tricky, 
+  // but "select%20" implies a command). Use caution.
+  // For safety, we only block high-confidence attack signatures in this layer.
+  if (dangerousPatterns.some(p => url.includes(p))) {
+    console.warn(`[Firewall] Blocked suspicious pattern in URL: ${req.nextUrl.pathname}`);
+    return new NextResponse(null, { status: 403, statusText: "Forbidden" });
   }
 
-  // 2. Admin Authentication check
-  const url = req.nextUrl;
-  const isAdminPath = url.pathname.startsWith("/admin");
-  const isApiAdminPath = url.pathname.startsWith("/api/admin");
-  const isExcluded = url.pathname === "/admin/login" || url.pathname === "/api/admin/auth";
+  // ----------------------------------------------------------------------
+  // 2. ROUTING & AUTHENTICATION
+  // ----------------------------------------------------------------------
 
-  if ((isAdminPath || isApiAdminPath) && !isExcluded) {
-    const session = req.cookies.get("admin_session")?.value;
+  let response: NextResponse;
+
+  const isAdminPath = req.nextUrl.pathname.startsWith("/admin");
+  const isApiAdminPath = req.nextUrl.pathname.startsWith("/api/admin");
+  const isLoginPage = req.nextUrl.pathname === "/admin/login";
+
+  // 2.1 Admin Access Control
+  if (isLoginPage) {
+    // If accessing login page while already logged in -> Redirect to Dashboard
+    const session = req.cookies.get("session")?.value;
+    if (session) {
+       response = NextResponse.redirect(new URL("/admin", req.url));
+    } else {
+       response = NextResponse.next();
+    }
+  } else if ((isAdminPath || isApiAdminPath) && !isLoginPage) {
+    // Protected Admin Routes
+    const session = req.cookies.get("session")?.value;
 
     if (!session) {
       if (isApiAdminPath) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        response = NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      } else {
+        response = NextResponse.redirect(new URL("/admin/login", req.url));
       }
-      return NextResponse.redirect(new URL("/admin/login", req.url));
+    } else {
+      // Allow request to proceed (Authorization happens in Layout/API)
+      response = NextResponse.next();
     }
-    
-    // Note: Full verification of the session cookie via Firebase Admin SDK
-    // cannot happen here in Edge Middleware (Node.js runtime required).
-    // We rely on the API Routes (Serverless) to double-check, but this check
-    // prevents casual access.
+  } else {
+    // Public Routes
+    response = NextResponse.next();
   }
 
-  return res;
+  // ----------------------------------------------------------------------
+  // 3. GLOBAL SECURITY HEADERS (Applied to ALL responses)
+  // ----------------------------------------------------------------------
+  
+  response.headers.set("X-XSS-Protection", "1; mode=block");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set(
+    "Content-Security-Policy",
+    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://dexterix5.documents.azure.com;"
+  );
+  response.headers.set(
+    "Strict-Transport-Security",
+    "max-age=63072000; includeSubDomains; preload"
+  );
+  response.headers.set(
+    "Permissions-Policy", 
+    "camera=(), microphone=(), geolocation=(), browsing-topics=(), payment=()"
+  );
+
+  return response;
 }
 
 export const config = {

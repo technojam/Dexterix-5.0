@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { parse } from "csv-parse/sync";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import { storageService } from "@/lib/services/storage.service";
 import { authService } from "@/lib/services/auth.service";
 import { cosmosService, ITeam } from "@/lib/services/cosmos.service";
@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   try {
     // START: Server-side Auth Check
     const cookieStore = await cookies();
-    const sessionToken = cookieStore.get("admin_session")?.value;
+    const sessionToken = cookieStore.get("session")?.value;
     
     if (!sessionToken) {
          return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -40,12 +40,37 @@ export async function POST(req: Request) {
     let records: any[] = [];
 
     // 2. Parse File (CSV or Excel)
-    if (file.name.endsWith(".xlsx") || file.name.endsWith(".xls")) {
+    if (file.name.endsWith(".xlsx")) {
         const buffer = await file.arrayBuffer();
-        const workbook = XLSX.read(buffer, { type: "array" });
-        const sheetName = workbook.SheetNames[0]; // Assume first sheet
-        const sheet = workbook.Sheets[sheetName];
-        records = XLSX.utils.sheet_to_json(sheet);
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(buffer);
+        const worksheet = workbook.worksheets[0];
+        
+        const headers: string[] = [];
+        worksheet.eachRow((row, rowNumber) => {
+             if (rowNumber === 1) {
+                 row.eachCell((cell, colNumber) => {
+                     headers[colNumber] = cell.value?.toString() || "";
+                 });
+             } else {
+                 const rowData: any = {};
+                 row.eachCell((cell, colNumber) => {
+                     const header = headers[colNumber];
+                     if (header) {
+                         let val = cell.value;
+                         // Handle rich text / formulas
+                         if (val && typeof val === "object") {
+                             if ("result" in val) val = (val as any).result;
+                             else if ("text" in val) val = (val as any).text;
+                         }
+                         rowData[header] = val;
+                     }
+                 });
+                 records.push(rowData);
+             }
+        });
+    } else if (file.name.endsWith(".xls")) {
+        return NextResponse.json({ error: "Legacy .xls format is not supported. Please use .xlsx or .csv" }, { status: 400 });
     } else {
         const text = await file.text();
         records = parse(text, {

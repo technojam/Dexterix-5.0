@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { StarsBackground } from "@/components/ui/stars-bg";
 import { Loader2, Save, Upload, Plus, Settings, Calendar, Layers, LogOut, Trash2, ArrowRight, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
+import { logoutAction } from "@/app/actions/auth";
 
 export default function AdminPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -69,8 +70,7 @@ export default function AdminPage() {
 
   const logout = async () => {
     try {
-        await fetch("/api/admin/logout", { method: "POST" });
-        window.location.href = "/";
+        await logoutAction();
     } catch (e) {
         toast.error("Logout failed");
     }

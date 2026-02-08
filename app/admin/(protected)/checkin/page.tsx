@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { StarsBackground } from "@/components/ui/stars-bg";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Loader2, Search, CheckCircle2, Circle, User, Users, LogOut, LayoutDashboard, Armchair, X } from "lucide-react";
+import { logoutAction } from "@/app/actions/auth";
 
 export default function CheckInPage() {
   const [teams, setTeams] = useState<any[]>([]);
@@ -138,8 +139,7 @@ export default function CheckInPage() {
 
   const logout = async () => {
     try {
-        await fetch("/api/admin/logout", { method: "POST" });
-        window.location.href = "/";
+        await logoutAction();
     } catch (e) {
         toast.error("Logout failed");
     }
