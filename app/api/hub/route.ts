@@ -23,7 +23,10 @@ export async function POST(req: Request) {
       // Let's assume we implement a simple count check by querying teams.
       const teamsContainer = await cosmosService.getTeamsContainer();
       const { resources: teams } = await teamsContainer.items
-        .query(`SELECT * FROM c WHERE c.problemStatementId = "${problemStatementId}"`)
+        .query({
+            query: "SELECT * FROM c WHERE c.problemStatementId = @id",
+            parameters: [{ name: "@id", value: problemStatementId }]
+        })
         .fetchAll();
 
       if (teams.length >= ps.maxLimit) {
@@ -87,7 +90,10 @@ export async function GET() {
         // Enrich with counts
         const enrichedProblems = await Promise.all(filteredProblems.map(async (ps) => {
             const { resources } = await teamsContainer.items
-                .query(`SELECT VALUE COUNT(1) FROM c WHERE c.problemStatementId = "${ps.id}"`)
+                .query({
+                    query: "SELECT VALUE COUNT(1) FROM c WHERE c.problemStatementId = @id",
+                    parameters: [{ name: "@id", value: ps.id }]
+                })
                 .fetchAll();
             const count = resources[0] || 0;
             return {

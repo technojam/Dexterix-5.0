@@ -33,7 +33,7 @@ export async function proxy(req: NextRequest) {
   // but "select%20" implies a command). Use caution.
   // For safety, we only block high-confidence attack signatures in this layer.
   if (dangerousPatterns.some(p => url.includes(p))) {
-    console.warn(`[Firewall] Blocked suspicious pattern in URL: ${req.nextUrl.pathname}`);
+    // console.warn(`[Firewall] Blocked suspicious pattern in URL: ${req.nextUrl.pathname}`);
     return new NextResponse(null, { status: 403, statusText: "Forbidden" });
   }
 

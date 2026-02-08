@@ -32,7 +32,8 @@ export async function POST(req: Request) {
 
     // 1. Upload to Azure Storage (Audit) via Service
     try {
-        await storageService.uploadFile(file, `team_upload_${Date.now()}_${file.name}`);
+        const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+        await storageService.uploadFile(file, `team_upload_${Date.now()}_${sanitizedFileName}`);
     } catch (e) {
         console.warn("Audit Upload Failed:", e);
     }
@@ -155,12 +156,16 @@ export async function POST(req: Request) {
     for (const team of teamsMap.values()) {
         if (team.name && team.leaderEmail) {
             // Check existence
-            let query = `SELECT * FROM c WHERE c.leaderEmail = "${team.leaderEmail}"`;
+            const querySpec = {
+                query: "SELECT * FROM c WHERE c.leaderEmail = @email",
+                parameters: [{ name: "@email", value: team.leaderEmail }]
+            };
             if (team.id) {
-                 query += ` OR c.id = "${team.id}"`;
+                 querySpec.query += " OR c.id = @id";
+                 querySpec.parameters.push({ name: "@id", value: team.id });
             }
 
-            const { resources: existing } = await teamsContainer.items.query(query).fetchAll();
+            const { resources: existing } = await teamsContainer.items.query(querySpec).fetchAll();
 
             if (existing.length === 0) {
                 // Ensure ID is set (should be from CSV, but fallback to UUID if missing logic fails)

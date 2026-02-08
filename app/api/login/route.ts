@@ -13,7 +13,10 @@ export async function POST(req: Request) {
 
     const teamsContainer = await cosmosService.getTeamsContainer();
     const { resources: teams } = await teamsContainer.items
-        .query(`SELECT * FROM c WHERE c.leaderEmail = "${email}"`)
+        .query({
+            query: "SELECT * FROM c WHERE c.leaderEmail = @email",
+            parameters: [{ name: "@email", value: email }]
+        })
         .fetchAll();
 
     const team = teams[0];
