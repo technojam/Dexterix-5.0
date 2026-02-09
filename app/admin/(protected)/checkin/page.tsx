@@ -7,20 +7,33 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { StarsBackground } from "@/components/ui/stars-bg";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Search, CheckCircle2, Circle, User, LogOut, LayoutDashboard, Armchair } from "lucide-react";
+import { Loader2, Search, CheckCircle2, Circle, User, LogOut, LayoutDashboard, Armchair, Edit, Plus, Trash2 } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// import { Textarea } from "@/components/ui/textarea";
 
 interface Team {
   id: string;
   name: string;
   leaderName?: string;
   leaderEmail?: string;
+  phone?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   members?: (string | { name: string; [key: string]: any })[];
   college?: string;
-  year?: string;
+//   year?: string;
   checkedIn?: boolean;
   tableNumber?: string | number;
+  problemStatementId?: string;
+  customProblemTitle?: string;
+  customProblemDescription?: string;
+}
+
+interface ProblemStatement {
+    id: string;
+    title: string;
+    category: string;
 }
 
 
@@ -30,24 +43,44 @@ export default function CheckInPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [totalTables, setTotalTables] = useState(100);
+  const [canEditTeams, setCanEditTeams] = useState(false);
+  const [problemStatements, setProblemStatements] = useState<ProblemStatement[]>([]);
   
   // Dialog State
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
 
+  // Edit State
+  const [editingTeam, setEditingTeam] = useState<Team | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+
   const [processing, setProcessing] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTeams();
     fetchSettings();
+    fetchProblems();
   }, []);
+
+  const fetchProblems = async () => {
+    try {
+        const res = await fetch("/api/admin/problems");
+        if (res.ok) {
+            const data = await res.json();
+            setProblemStatements(data);
+        }
+    } catch {
+        console.error("Failed to load problems");
+    }
+  };
 
   const fetchSettings = async () => {
       try {
           const res = await fetch("/api/settings");
           const data = await res.json();
           if (data.totalTables) setTotalTables(data.totalTables);
+          if (data.volunteersCanEditTeams !== undefined) setCanEditTeams(data.volunteersCanEditTeams);
       } catch {
           console.error("Failed to load settings");
       }
@@ -151,6 +184,29 @@ export default function CheckInPage() {
       }
   };
 
+  const saveTeamUpdates = async () => {
+      if (!editingTeam) return;
+      try {
+          const res = await fetch("/api/admin/teams", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(editingTeam)
+          });
+          
+          if (res.ok) {
+              toast.success("Team Updated");
+              setEditDialogOpen(false);
+              setEditingTeam(null);
+              fetchTeams(); // Refresh data
+          } else {
+              const data = await res.json();
+              toast.error(data.error || "Update failed");
+          }
+      } catch {
+          toast.error("Network error");
+      }
+  };
+
   const logout = async () => {
     try {
         await logoutAction();
@@ -163,7 +219,10 @@ export default function CheckInPage() {
       t.name.toLowerCase().includes(search.toLowerCase()) || 
       t.id.toLowerCase().includes(search.toLowerCase()) ||
       (t.leaderEmail && t.leaderEmail.toLowerCase().includes(search.toLowerCase())) ||
-      (t.members && t.members.some((m: string) => m.toLowerCase().includes(search.toLowerCase())))
+      (t.members && t.members.some((m) => {
+          const name = typeof m === 'string' ? m : m.name;
+          return name.toLowerCase().includes(search.toLowerCase());
+      }))
   );
 
   return (
@@ -255,11 +314,25 @@ export default function CheckInPage() {
                                         
                                         <div className="text-xs text-slate-400 pt-2">
                                             {team.college && <span className="block">{team.college}</span>}
-                                            {team.year && <span>Year: {team.year}</span>}
                                         </div>
                                     </div>
                                     
                                     <div className="flex flex-col items-center justify-center md:items-end gap-3">
+                                        {(canEditTeams || role === "admin") && (
+                                            <Button
+                                                variant="ghost" 
+                                                size="sm"
+                                                className="text-slate-400 hover:text-white"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setEditingTeam({...team});
+                                                    setEditDialogOpen(true);
+                                                }}
+                                            >
+                                                <Edit className="h-4 w-4 mr-2" /> Edit Details
+                                            </Button>
+                                        )}
+
                                         {team.checkedIn && team.tableNumber && (
                                             <div className="flex items-center gap-2 bg-black/40 px-4 py-2 rounded-lg border border-white/10">
                                                 <Armchair className="h-5 w-5 text-blue-400" />
@@ -353,6 +426,181 @@ export default function CheckInPage() {
                  </DialogFooter>
              </DialogContent>
          </Dialog>
+
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+            <DialogContent className="bg-[#0f172a] border-white/10 text-white font-lora w-full sm:max-w-5xl max-h-[90vh] flex flex-col">
+                <DialogHeader>
+                    <DialogTitle>Edit Team Details</DialogTitle>
+                    <DialogDescription className="text-slate-400">Modify team information and members.</DialogDescription>
+                </DialogHeader>
+                {editingTeam && (
+                    <div className="space-y-6 overflow-y-auto pr-2 custom-scrollbar flex-1 p-1">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Team Name</Label>
+                                <Input 
+                                    value={editingTeam.name} 
+                                    onChange={(e) => setEditingTeam({...editingTeam, name: e.target.value})}
+                                    className="bg-white/5 border-white/10 placeholder:text-slate-500"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Leader Name</Label>
+                                <Input 
+                                    value={editingTeam.leaderName || ""} 
+                                    onChange={(e) => setEditingTeam({...editingTeam, leaderName: e.target.value})}
+                                    className="bg-white/5 border-white/10 placeholder:text-slate-500"
+                                />
+                            </div>
+                             <div className="space-y-2">
+                                <Label>Leader Email</Label>
+                                <Input 
+                                    value={editingTeam.leaderEmail || ""} 
+                                    onChange={(e) => setEditingTeam({...editingTeam, leaderEmail: e.target.value})}
+                                    className="bg-white/5 border-white/10 placeholder:text-slate-500"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Leader Phone</Label>
+                                <Input 
+                                    value={editingTeam.phone || ""} 
+                                    onChange={(e) => setEditingTeam({...editingTeam, phone: e.target.value})}
+                                    className="bg-white/5 border-white/10 placeholder:text-slate-500"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Members Section */}
+                        <div className="space-y-4 pt-4 border-t border-white/10">
+                            <div className="flex justify-between items-center">
+                                <Label className="text-white text-lg font-semibold">Members</Label>
+                                 <Button 
+                                    type="button" 
+                                    size="sm" 
+                                    onClick={() => {
+                                        const newMember = { name: "New Member", email: "", phone: "", gender: "Male", course: "B.Tech", year: "1" };
+                                        setEditingTeam({...editingTeam, members: [...(editingTeam.members || []), newMember]});
+                                    }}
+                                    className="bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                    <Plus className="w-4 h-4 mr-1" /> Add Member
+                                </Button>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 gap-4">
+                                {editingTeam.members?.map((member, idx) => (
+                                    <div key={idx} className="bg-white/5 rounded-xl p-4 space-y-3 relative group border border-white/5 hover:border-white/20 transition-all">
+                                        <div className="absolute top-3 right-3 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                            <Button 
+                                                type="button" 
+                                                size="icon" 
+                                                variant="ghost" 
+                                                className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                                                onClick={() => {
+                                                    const newMembers = [...(editingTeam.members || [])];
+                                                    newMembers.splice(idx, 1);
+                                                    setEditingTeam({...editingTeam, members: newMembers});
+                                                }}
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                            <div className="space-y-1.5">
+                                                <Label className="text-xs text-slate-400">Name</Label>
+                                                 <Input 
+                                                    value={typeof member === 'string' ? member : member.name || ""} 
+                                                    onChange={(e) => {
+                                                        const newMembers = [...(editingTeam.members || [])];
+                                                        if (typeof newMembers[idx] === 'string') {
+                                                            newMembers[idx] = { name: e.target.value } as any; 
+                                                        } else {
+                                                            newMembers[idx].name = e.target.value;
+                                                        }
+                                                        setEditingTeam({...editingTeam, members: newMembers});
+                                                    }}
+                                                    className="bg-black/20 border-white/10 text-white h-9 text-sm"
+                                                />
+                                            </div>
+                                             <div className="space-y-1.5">
+                                                <Label className="text-xs text-slate-400">Email</Label>
+                                                 <Input 
+                                                    value={typeof member === 'string' ? "" : (member as any).email || ""} 
+                                                    onChange={(e) => {
+                                                        const newMembers = [...(editingTeam.members || [])];
+                                                        if (typeof newMembers[idx] === 'string') newMembers[idx] = { name: newMembers[idx] } as any;
+                                                        (newMembers[idx] as any).email = e.target.value;
+                                                        setEditingTeam({...editingTeam, members: newMembers});
+                                                    }}
+                                                    className="bg-black/20 border-white/10 text-white h-9 text-sm"
+                                                />
+                                            </div>
+                                             <div className="space-y-1.5">
+                                                <Label className="text-xs text-slate-400">Phone</Label>
+                                                 <Input 
+                                                    value={typeof member === 'string' ? "" : (member as any).phone || ""} 
+                                                    onChange={(e) => {
+                                                        const newMembers = [...(editingTeam.members || [])];
+                                                        if (typeof newMembers[idx] === 'string') newMembers[idx] = { name: newMembers[idx] } as any;
+                                                        (newMembers[idx] as any).phone = e.target.value;
+                                                        setEditingTeam({...editingTeam, members: newMembers});
+                                                    }}
+                                                    className="bg-black/20 border-white/10 text-white h-9 text-sm"
+                                                />
+                                            </div>
+                                             <div className="space-y-1.5">
+                                                <Label className="text-xs text-slate-400">Gender</Label>
+                                                 <Input 
+                                                    value={typeof member === 'string' ? "" : (member as any).gender || ""} 
+                                                    onChange={(e) => {
+                                                        const newMembers = [...(editingTeam.members || [])];
+                                                        if (typeof newMembers[idx] === 'string') newMembers[idx] = { name: newMembers[idx] } as any;
+                                                        (newMembers[idx] as any).gender = e.target.value;
+                                                        setEditingTeam({...editingTeam, members: newMembers});
+                                                    }}
+                                                    className="bg-black/20 border-white/10 text-white h-9 text-sm"
+                                                />
+                                            </div>
+                                             <div className="space-y-1.5">
+                                                <Label className="text-xs text-slate-400">Course</Label>
+                                                 <Input 
+                                                    value={typeof member === 'string' ? "" : (member as any).course || ""} 
+                                                    onChange={(e) => {
+                                                        const newMembers = [...(editingTeam.members || [])];
+                                                        if (typeof newMembers[idx] === 'string') newMembers[idx] = { name: newMembers[idx] } as any;
+                                                        (newMembers[idx] as any).course = e.target.value;
+                                                        setEditingTeam({...editingTeam, members: newMembers});
+                                                    }}
+                                                    className="bg-black/20 border-white/10 text-white h-9 text-sm"
+                                                />
+                                            </div>
+                                             <div className="space-y-1.5">
+                                                <Label className="text-xs text-slate-400">Year</Label>
+                                                 <Input 
+                                                    value={typeof member === 'string' ? "" : (member as any).year || ""} 
+                                                    onChange={(e) => {
+                                                        const newMembers = [...(editingTeam.members || [])];
+                                                        if (typeof newMembers[idx] === 'string') newMembers[idx] = { name: newMembers[idx] } as any;
+                                                        (newMembers[idx] as any).year = e.target.value;
+                                                        setEditingTeam({...editingTeam, members: newMembers});
+                                                    }}
+                                                    className="bg-black/20 border-white/10 text-white h-9 text-sm"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
+                <DialogFooter className="pt-2">
+                    <Button variant="ghost" onClick={() => setEditDialogOpen(false)} className="hover:bg-white/10 hover:text-white">Cancel</Button>
+                    <Button onClick={saveTeamUpdates} className="bg-blue-600 hover:bg-blue-700 text-white">Save Changes</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </div>
   );
 }

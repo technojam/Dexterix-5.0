@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StarsBackground } from "@/components/ui/stars-bg";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Users, Trophy, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -44,8 +45,15 @@ export interface LeaderboardEntry {
     score: number;
 }
 
+export interface UnregisteredTeam {
+  id: string; // The cosmos ID, or teamId? Using teamId for display and ID for selection might be better, or just teamId if unique
+  teamId: string; // Display ID e.g. T-101
+  name: string;
+}
+
 export interface PageData {
   problems: ProblemStatement[];
+  unregisteredTeams?: UnregisteredTeam[];
   config: {
     canRegister: boolean;
     registrationOpenTime?: string | null;
@@ -72,10 +80,44 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
   const [selectedPs, setSelectedPs] = useState<ProblemStatement | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
+  const [unregisteredTeams, setUnregisteredTeams] = useState<UnregisteredTeam[]>(initialData.unregisteredTeams || []);
+  const [isLoadingTeams, setIsLoadingTeams] = useState(false);
+
+  useEffect(() => {
+    // Fetch unregistered teams client-side to ensure freshness and reliability
+    const fetchTeams = async () => {
+        setIsLoadingTeams(true);
+        try {
+            const res = await fetch('/api/teams/unregistered');
+            if (res.ok) {
+                const data = await res.json();
+                console.log("Fetched teams raw:", data);
+                // Filter out teams that already have a problem statement
+                // Also ensure they have an ID to select
+                const validTeams = data.filter((t: any) => 
+                    (!t.problemStatementId || t.problemStatementId === "") && t.id
+                );
+                console.log("Valid unregistered teams:", validTeams);
+                setUnregisteredTeams(validTeams);
+            }
+        } catch (error) {
+            console.error("Failed to fetch teams client-side", error);
+        } finally {
+            setIsLoadingTeams(false);
+        }
+    };
+
+    fetchTeams();
+  }, []);
   
   // Form State
   const [selectedTeamId, setSelectedTeamId] = useState("");
+  const [leaderName, setLeaderName] = useState("");
   const [leaderEmail, setLeaderEmail] = useState("");
+  const [customTitle, setCustomTitle] = useState("");
+  const [customDescription, setCustomDescription] = useState("");
+
+  const isOpenInnovation = selectedPs?.title.toLowerCase().includes("open innovation");
 
   const handleSelect = (ps: ProblemStatement) => {
     if (!initialData?.config.canRegister) {
@@ -88,13 +130,20 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
       return;
     }
     setSelectedPs(ps);
+    setCustomTitle("");
+    setCustomDescription("");
     setIsDialogOpen(true);
   };
 
   const handleSubmit = async () => {
-    if (!selectedTeamId || !leaderEmail) {
-      toast.error("Please fill in all fields");
+    if (!selectedTeamId || !leaderEmail || !leaderName) {
+      toast.error("Please fill in all team details");
       return;
+    }
+
+    if (isOpenInnovation && (!customTitle || !customDescription)) {
+        toast.error("Please provide your problem statement details");
+        return;
     }
 
     setFormLoading(true);
@@ -105,7 +154,10 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
         body: JSON.stringify({
           problemStatementId: selectedPs?.id,
           teamId: selectedTeamId,
-          leaderEmail
+          leaderEmail,
+          leaderName,
+          customTitle: isOpenInnovation ? customTitle : undefined,
+          customDescription: isOpenInnovation ? customDescription : undefined
         })
       });
 
@@ -154,9 +206,9 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
 
         <Tabs defaultValue="problems" className="w-full">
             <div className="flex justify-center mb-10">
-                <TabsList className="grid w-full max-w-[400px] h-12 grid-cols-2 bg-secondary/20 border border-white/10 backdrop-blur-md rounded-full p-1">
-                    <TabsTrigger value="problems" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white font-lora">Problem Statements</TabsTrigger>
-                    <TabsTrigger value="leaderboard" className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white font-lora">Leaderboard</TabsTrigger>
+                <TabsList className="grid w-full max-w-[400px] h-12 grid-cols-2 bg-secondary/20 border border-white/10 backdrop-blur-md rounded-full p-1 items-stretch">
+                    <TabsTrigger value="problems" className="!h-full rounded-full data-[state=active]:bg-primary data-[state=active]:text-white font-lora">Problem Statements</TabsTrigger>
+                    <TabsTrigger value="leaderboard" className="!h-full rounded-full data-[state=active]:bg-primary data-[state=active]:text-white font-lora">Leaderboard</TabsTrigger>
                 </TabsList>
             </div>
 
@@ -168,13 +220,16 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
                         <Card key={ps.id} className="flex flex-col h-full bg-secondary/20 border-white/10 backdrop-blur-md hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
                         <CardHeader>
                             <div className="flex justify-between items-start gap-2">
-                            <Badge variant={ps.category === "Hardware" ? "destructive" : "default"} className={`${ps.category === "Software" ? "bg-blue-600 hover:bg-blue-700" : ""} font-lora`}>
-                                {ps.category}
-                            </Badge>
-                            <div className="flex items-center text-xs text-white/90 bg-black/40 px-3 py-1 rounded-full border border-white/10 font-mono">
-                                <Users className="h-3 w-3 mr-2" />
-                                {ps._count?.teams || 0} / {ps.maxLimit}
-                            </div>
+                                <div className="flex gap-2 items-center flex-wrap">
+                                    <span className="text-xs font-mono font-bold bg-white/10 px-2 py-1 rounded-md text-white/80 border border-white/10 uppercase tracking-wider">{ps.id}</span>
+                                    <Badge variant={ps.category === "Hardware" ? "destructive" : "default"} className={`${ps.category === "Software" ? "bg-blue-600 hover:bg-blue-700" : ""} font-lora`}>
+                                        {ps.category}
+                                    </Badge>
+                                </div>
+                                <div className="flex items-center text-xs text-white/90 bg-black/40 px-3 py-1 rounded-full border border-white/10 font-mono whitespace-nowrap">
+                                    <Users className="h-3 w-3 mr-2" />
+                                    {ps._count?.teams || 0} / {ps.maxLimit}
+                                </div>
                             </div>
                             <CardTitle className="leading-tight mt-3 text-white font-lora text-xl">{ps.title}</CardTitle>
                         </CardHeader>
@@ -261,16 +316,68 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            {isOpenInnovation && (
+                <>
+                    <div className="grid gap-2">
+                       <Label htmlFor="customTitle">Problem Title</Label>
+                       <Input
+                           id="customTitle"
+                           placeholder="Your Problem Statement Title"
+                           value={customTitle}
+                           onChange={(e) => setCustomTitle(e.target.value)}
+                           className="bg-black/20 border-white/10"
+                       />
+                    </div>
+                    <div className="grid gap-2">
+                       <Label htmlFor="customDescription">Problem Description</Label>
+                       <textarea
+                            id="customDescription"
+                            placeholder="Describe your solution..."
+                            className="flex h-20 w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 text-white"
+                            value={customDescription}
+                            onChange={(e) => setCustomDescription(e.target.value)}
+                        />
+                    </div>
+                </>
+            )}
             <div className="grid gap-2">
-              <Label htmlFor="teamId">Team ID</Label>
-              <Input
-                id="teamId"
-                placeholder="Enter your Team ID"
-                value={selectedTeamId}
-                onChange={(e) => setSelectedTeamId(e.target.value)}
-                className="bg-black/20 border-white/10"
-              />
+              <Label htmlFor="teamId">Select Team</Label>
+              <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-white w-full h-10 font-lora">
+                  <SelectValue placeholder="Select your team" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#0a1120] border-white/10 text-white max-h-[200px] z-[150] font-lora">
+                    {isLoadingTeams ? (
+                         <SelectItem value="loading" disabled className="text-muted-foreground font-lora">Loading teams...</SelectItem>
+                    ) : unregisteredTeams && unregisteredTeams.length > 0 ? (
+                        unregisteredTeams.map((team) => (
+                            <SelectItem key={team.id} value={team.id} className="focus:bg-white/10 focus:text-white cursor-pointer font-lora">
+                                <div className="flex items-center w-full">
+                                    <span className="font-mono text-muted-foreground bg-white/5 px-2 py-0.5 rounded text-xs mr-3 min-w-[60px] text-center border border-white/5">
+                                        {team.teamId || team.id || "N/A"}
+                                    </span>
+                                    <span>{team.name}</span>
+                                </div>
+                            </SelectItem>
+                        ))
+                    ) : (
+                         <SelectItem value="none" disabled className="text-muted-foreground font-lora">No eligible teams found</SelectItem>
+                    )}
+                </SelectContent>
+              </Select>
             </div>
+            
+            <div className="grid gap-2">
+               <Label htmlFor="leaderName">Leader Name</Label>
+               <Input
+                   id="leaderName"
+                   placeholder="Full Name of Team Leader"
+                   value={leaderName}
+                   onChange={(e) => setLeaderName(e.target.value)}
+                   className="bg-black/20 border-white/10"
+               />
+            </div>
+
             <div className="grid gap-2">
                 <Label htmlFor="leaderEmail">Leader Email</Label>
                 <Input
@@ -282,9 +389,20 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
                 />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={formLoading}>Cancel</Button>
-            <Button onClick={handleSubmit} disabled={formLoading}>
+          <DialogFooter className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
+            <Button 
+                variant="outline" 
+                className="w-full sm:flex-1 bg-transparent border-white/10 hover:bg-white/10 text-white hover:text-white" 
+                onClick={() => setIsDialogOpen(false)} 
+                disabled={formLoading}
+            >
+                Cancel
+            </Button>
+            <Button 
+                onClick={handleSubmit} 
+                disabled={formLoading} 
+                className="w-full sm:flex-1 bg-white text-black hover:bg-white/90"
+            >
               {formLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Confirm Selection
             </Button>

@@ -79,7 +79,7 @@ export async function PATCH(req: Request) {
 
     try {
         const teamUpdates = await req.json();
-        const { id, name, leaderEmail, leaderPhone, members, problemStatementId } = teamUpdates;
+        const { id, name, leaderEmail, phone, members, problemStatementId } = teamUpdates;
 
         if (!id) {
             return NextResponse.json({ error: "Team ID is required" }, { status: 400 });
@@ -93,7 +93,7 @@ export async function PATCH(req: Request) {
         // Apply updates
         if (name) team.name = name;
         if (leaderEmail) team.leaderEmail = leaderEmail;
-        if (leaderPhone) team.phone = leaderPhone;
+        if (phone) team.phone = phone;
         if (members) team.members = members; // Assumes array of strings
         if (typeof problemStatementId !== 'undefined') team.problemStatementId = problemStatementId; // Allow null to clear
         
@@ -125,7 +125,7 @@ export async function POST(req: Request) {
              name: body.name,
              leaderName: body.leaderName || "",
              leaderEmail: body.leaderEmail || "",
-             leaderPhone: body.leaderPhone || "",
+             phone: body.phone || body.leaderPhone || "",
              members: body.members || [],
              checkedIn: false,
              problemStatementId: body.problemStatementId || null,

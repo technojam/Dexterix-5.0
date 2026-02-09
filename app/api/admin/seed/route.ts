@@ -85,7 +85,6 @@ export async function POST(req: Request) {
         });
     }
 
-    const results = [];
     const teamsMap = new Map<string, ITeam>();
     let lastTeamId = "";
 
@@ -123,36 +122,64 @@ export async function POST(req: Request) {
         if (!team.college && (record["College/University"] || record["College"])) team.college = record["College/University"] || record["College"];
         if (!team.year && record["Year"]) team.year = record["Year"];
 
-        const memberName = record["Name"] || record["Members"];
-        const leaderCol = record["Team Leader"] || record["Team Leader Name"];
-        const email = record["Email"];
-        const phone = record["Phone Number"];
+        const memberName = record["Name"] || record["Members"] || record["Member Name"];
+        const leaderCol = record["Team Leader"] || record["Team Leader Name"] || record["Leader Name"];
+        const email = record["Email"] || record["Email Address"];
+        const phone = record["Phone Number"] || record["Phone"] || record["Mobile"] || record["Contact"];
 
         if (memberName) {
             // Check if this row represents the leader
-            const isLeader = leaderCol && memberName.trim().toLowerCase() === leaderCol.trim().toLowerCase();
+            // Relaxed matching for multi-word names: "Anuj Singh" (Leader) matches "Anuj Singh" (Member) or even "Anuj" partially
+            // But strict check is safer. The issue might be leading/trailing spaces or casing.
+            const normalizedMember = memberName.toString().trim().toLowerCase();
+            const normalizedLeaderCol = leaderCol ? leaderCol.toString().trim().toLowerCase() : "";
+            
+            // Check if this member IS the leader
+            // Sometimes excel has just "Leader Name" column filled for one row, and "Members" has everyone including leader.
+            // Or "Team Leader" column has the name, and "Name" column has the same name.
+            const isLeader = normalizedLeaderCol && normalizedMember === normalizedLeaderCol;
 
             const memberObj = {
-                name: memberName,
-                email: email || "",
-                phone: phone || "",
-                gender: record["Gender"] || "",
-                course: record["Course"] || "",
-                year: record["Year"] || "",
-                college: record["College/University"] || record["College"] || "",
+                name: memberName.toString().trim(),
+                email: (email || "").toString().trim(),
+                phone: (phone || "").toString().trim(),
+                gender: (record["Gender"] || "").toString().trim(),
+                course: (record["Course"] || "").toString().trim(),
+                year: (record["Year"] || "").toString().trim(),
+                college: (record["College/University"] || record["College"] || "").toString().trim(),
                 isLeader: isLeader
             };
 
-            if (isLeader) {
-                team.leaderName = memberName;
-                team.leaderEmail = email;
-                team.phone = phone;
+            if (isLeader || !team.leaderName) {
+                // If strictly matched as leader OR if no leader set yet (fallback to first member?)
+                // Better to rely on the column "Team Leader" existing.
+                if (isLeader) {
+                    team.leaderName = memberName.toString().trim();
+                    team.leaderEmail = (email || "").toString().trim();
+                    team.phone = (phone || "").toString().trim();
+                    memberObj.isLeader = true;
+                } else if (normalizedLeaderCol && !team.leaderName) {
+                     // Leader defined in column but hasn't been found in rows yet?
+                     // Or this row is just a member.
+                     // Wait, if "Team Leader" column has a name "Anuj Singh"
+                     // And this row is "Rohit", then isLeader=false.
+                     // But if the row for "Anuj Singh" never comes? 
+                     // Usually the leader is ONE of the rows.
+                }
+
+                // Fallback: If "Team Leader" column is empty in Excel, maybe the first row is leader?
+                // User said "Team 20 skipped".
+                // If logic requires `team.leaderEmail` to save, and `isLeader` logic failed, team won't save.
             }
+            // Explicitly set leader info if this row *defines* the leader even if not matched by name (e.g. specialized columns)
+            if (record["Leader Email"] && !team.leaderEmail) team.leaderEmail = record["Leader Email"];
+            if (record["Leader Phone"] && !team.phone) team.phone = record["Leader Phone"];
+            if (record["Team Leader"] && !team.leaderName) team.leaderName = record["Team Leader"];
 
             // Add to members array (avoid duplicates based on email or name)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const exists = team.members.find((m: any) => 
-                (m.email && m.email === email && email) || m.name === memberName
+                (m.email && m.email === memberObj.email && memberObj.email) || m.name === memberObj.name
             );
 
             if (!exists) {
@@ -162,34 +189,50 @@ export async function POST(req: Request) {
         }
     }
 
-    // 2. Save grouped teams to Cosmos
+    const results = [];
+    let skippedCount = 0;
     const teamsContainer = await cosmosService.getTeamsContainer();
 
     for (const team of teamsMap.values()) {
-        if (team.name && team.leaderEmail) {
-            // Check existence
-            const querySpec = {
-                query: "SELECT * FROM c WHERE c.leaderEmail = @email",
-                parameters: [{ name: "@email", value: team.leaderEmail }]
-            };
+        // Validation: Must have at least a Name and SOME contact info (Email or Leader Email)
+        const validEmail = team.leaderEmail || (team.members.length > 0 ? (team.members[0] as any).email : null);
+        
+        if (team.name && validEmail) {
+            // Apply fallback if leaderEmail was missing but member had it
+            if (!team.leaderEmail) team.leaderEmail = validEmail;
+            
+            // Check existence: User requested strictly ID if present, otherwise fallback to Email
+            let querySpec;
+            
             if (team.id) {
-                 querySpec.query += " OR c.id = @id";
-                 querySpec.parameters.push({ name: "@id", value: team.id });
+                // If ID is provided in CSV, that is the single source of truth for duplication
+                querySpec = {
+                    query: "SELECT * FROM c WHERE c.id = @id",
+                    parameters: [{ name: "@id", value: team.id }]
+                };
+            } else {
+                // If no ID, use email to prevent creating new IDs for same person
+                querySpec = {
+                    query: "SELECT * FROM c WHERE c.leaderEmail = @email",
+                    parameters: [{ name: "@email", value: team.leaderEmail }]
+                };
             }
 
             const { resources: existing } = await teamsContainer.items.query(querySpec).fetchAll();
 
             if (existing.length === 0) {
-                // Ensure ID is set (should be from CSV, but fallback to UUID if missing logic fails)
+                // Ensure ID is set
                 if (!team.id) team.id = uuidv4();
                 
                 await cosmosService.createTeam(team);
                 results.push(team);
+            } else {
+                skippedCount++;
             }
         }
     }
 
-    return NextResponse.json({ success: true, count: results.length, teams: results });
+    return NextResponse.json({ success: true, count: results.length, skipped: skippedCount, teams: results });
   } catch (error) {
     console.error("CSV Upload Error:", error);
     return NextResponse.json({ error: "Failed to process CSV" }, { status: 500 });

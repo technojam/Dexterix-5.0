@@ -7,10 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { StarsBackground } from "@/components/ui/stars-bg";
-import { Loader2, Save, Upload, Plus, Settings, Calendar, Layers, LogOut, Trash2, ArrowRight, LayoutDashboard, Edit } from "lucide-react";
+import { Search, Loader2, Save, Upload, Plus, Settings, Calendar, Layers, LogOut, Trash2, ArrowRight, LayoutDashboard, Edit, Download } from "lucide-react";
 import Link from "next/link";
 import { logoutAction } from "@/app/actions/auth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Member {
   name: string;
@@ -65,6 +67,7 @@ export default function AdminPage() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Problem Statement Form
   const [psId, setPsId] = useState("");
@@ -234,7 +237,9 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success(`Successfully imported ${data.count} teams`);
+        toast.success(`Imported ${data.count} teams`, {
+            description: data.skipped > 0 ? `${data.skipped} duplicates skipped.` : undefined
+        });
         setFile(null);
       } else {
         toast.error(data.error);
@@ -244,6 +249,39 @@ export default function AdminPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const exportTeams = () => {
+      if (!teams.length) {
+          toast.error("No teams to export");
+          return;
+      }
+      
+      const headers = ["Team ID", "Team Name", "Leader Name", "Leader Email", "Phone", "College", "Member Count", "Problem Statement", "Checked In", "Table"];
+      const csvContent = [
+          headers.join(","),
+          ...teams.map(t => [
+              t.teamId || t.id, // Prefer display ID
+              `"${(t.name || "").replace(/"/g, '""')}"`,
+              `"${(t.leaderName || "").replace(/"/g, '""')}"`,
+              t.leaderEmail || "",
+              t.phone || "",
+              `"${(t.college || "").replace(/"/g, '""')}"`,
+              (t.members || []).length,
+              t.problemStatementId || "N/A",
+              t.checkedIn ? "Yes" : "No",
+              t.tableNumber || ""
+          ].join(","))
+      ].join("\n");
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `teams_export_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
   };
 
   const createPS = async () => {
@@ -405,30 +443,50 @@ export default function AdminPage() {
     if (!settings) return;
     const currentStr = settings[settingKey] || new Date().toISOString();
     let date = new Date(currentStr);
-    if (isNaN(date.getTime())) date = new Date(); // Fallback if invalid
+    if (isNaN(date.getTime())) date = new Date();
+
+    // Convert to IST (UTC + 5:30) to work with the user's intended time
+    const istOffsetMs = 5.5 * 60 * 60 * 1000;
+    const istDate = new Date(date.getTime() + istOffsetMs);
+
+    let y = istDate.getUTCFullYear();
+    let m = istDate.getUTCMonth();
+    let d = istDate.getUTCDate();
+    let h = istDate.getUTCHours();
+    let min = istDate.getUTCMinutes();
 
     if (type === 'date') {
         // value is YYYY-MM-DD
-        const [y, m, d] = value.split('-').map(Number);
-        date.setFullYear(y);
-        date.setMonth(m - 1);
-        date.setDate(d);
+        const [ny, nm, nd] = value.split('-').map(Number);
+        y = ny;
+        m = nm - 1;
+        d = nd;
     } else {
         // value is HH:MM
-        const [h, min] = value.split(':').map(Number);
-        date.setHours(h);
-        date.setMinutes(min);
+        const [nh, nmin] = value.split(':').map(Number);
+        h = nh;
+        min = nmin;
     }
-    setSettings({ ...settings, [settingKey]: date.toISOString() });
+
+    // Create timestamp treating components as UTC, then subtract offset to get real UTC
+    const newIstAsUtc = Date.UTC(y, m, d, h, min);
+    const newRealUtc = newIstAsUtc - istOffsetMs;
+
+    setSettings({ ...settings, [settingKey]: new Date(newRealUtc).toISOString() });
   };
 
   const getDateValue = (isoString: string) => {
     if (!isoString) return "";
     const date = new Date(isoString);
     if (isNaN(date.getTime())) return "";
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
+    
+    // Display as IST
+    const istOffsetMs = 5.5 * 60 * 60 * 1000;
+    const istDate = new Date(date.getTime() + istOffsetMs);
+    
+    const y = istDate.getUTCFullYear();
+    const m = String(istDate.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(istDate.getUTCDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
   };
 
@@ -436,8 +494,13 @@ export default function AdminPage() {
      if (!isoString) return "";
      const date = new Date(isoString);
      if (isNaN(date.getTime())) return "";
-     const h = String(date.getHours()).padStart(2, '0');
-     const m = String(date.getMinutes()).padStart(2, '0');
+
+     // Display as IST
+     const istOffsetMs = 5.5 * 60 * 60 * 1000;
+     const istDate = new Date(date.getTime() + istOffsetMs);
+
+     const h = String(istDate.getUTCHours()).padStart(2, '0');
+     const m = String(istDate.getUTCMinutes()).padStart(2, '0');
      return `${h}:${m}`;
   };
 
@@ -567,7 +630,7 @@ export default function AdminPage() {
                             {/* Timelines */}
                             <div className="space-y-4">
                                 <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                                     <Calendar className="h-4 w-4" /> Registration Window
+                                     <Calendar className="h-4 w-4" /> Registration Window (IST)
                                 </h3>
                                 <div className="bg-black/20 rounded-xl p-4 space-y-4 border border-white/5">
                                     <div className="space-y-2">
@@ -694,9 +757,27 @@ export default function AdminPage() {
                                 <LogOut className="h-4 w-4 mr-2" />
                                 Reset Check-ins
                             </Button>
+                            <Button 
+                                variant="secondary" 
+                                size="sm" 
+                                onClick={exportTeams}
+                                className="bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 flex-1 md:flex-none"
+                            >
+                                <Download className="h-4 w-4 mr-2" />
+                                Export CSV
+                            </Button>
                          </div>
                     </CardHeader>
                     <CardContent>
+                        <div className="relative mb-4">
+                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-500" />
+                            <Input
+                                placeholder="Search by team name, ID, or leader..."
+                                className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-slate-500"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
                         <div className="rounded-md border border-white/10 overflow-hidden">
                             {/* Table Header - Hidden on Mobile */}
                             <div className="hidden md:grid bg-white/5 p-3 grid-cols-12 gap-4 text-sm font-medium text-slate-300">
@@ -716,7 +797,19 @@ export default function AdminPage() {
                                 ) : teams.length === 0 ? (
                                     <div className="p-8 text-center text-slate-500">No teams found. Import CSV to get started.</div>
                                 ) : (
-                                    teams.map((team, idx) => (
+                                    teams
+                                    .filter(team => {
+                                        if (!searchTerm) return true;
+                                        const lowerTerm = searchTerm.toLowerCase();
+                                        return (
+                                            team.name?.toLowerCase().includes(lowerTerm) ||
+                                            (team.teamId && team.teamId.toLowerCase().includes(lowerTerm)) ||
+                                            (team.id && team.id.toLowerCase().includes(lowerTerm)) ||
+                                            team.leaderName?.toLowerCase().includes(lowerTerm) ||
+                                            String(team.phone || "").includes(searchTerm)
+                                        );
+                                    })
+                                    .map((team, idx) => (
                                         <div key={team.id || idx} className="p-4 md:p-3 border-t border-white/5 hover:bg-white/5 transition-colors flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-4 items-start md:items-center">
                                             
                                             {/* Mobile: Top Row (Name + Status) */}
@@ -757,6 +850,7 @@ export default function AdminPage() {
 
                                             {/* Contact */}
                                             <div className="col-span-3 text-xs text-slate-400 w-full">
+                                                <div className="font-medium text-slate-200 truncate">{team.leaderName}</div>
                                                 <div className="truncate">{team.leaderEmail}</div>
                                                 <div className="opacity-50 truncate">{team.college}</div>
                                             </div>
@@ -817,17 +911,29 @@ export default function AdminPage() {
                 </Card>
 
                 {/* Left Column: Import */}
-                <Card className="bg-white/5 backdrop-blur-md border-white/10 h-full">
-                    <CardHeader>
+                <Card className="bg-white/5 backdrop-blur-md border-white/10 h-full flex flex-col">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
                          <div className="flex items-center gap-3">
                              <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20">
                                 <Upload className="h-5 w-5 text-green-400" />
                              </div>
                              <CardTitle className="text-white">Import Teams</CardTitle>
                          </div>
+                         <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                                setEditingTeam({ id: "", name: "", members: [] });
+                                setEditDialogOpen(true);
+                            }}
+                            className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
+                        >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Manual Team
+                        </Button>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="border-2 border-dashed border-white/10 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-white/5 transition-colors group cursor-pointer relative">
+                    <CardContent className="space-y-6 flex flex-col flex-1">
+                        <div className="flex-1 border-2 border-dashed border-white/10 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-white/5 transition-colors group cursor-pointer relative min-h-[200px]">
                              <Input 
                                 id="csv" 
                                 type="file" 
@@ -849,22 +955,10 @@ export default function AdminPage() {
                         <Button 
                             onClick={uploadCsv} 
                             disabled={loading || !file}
-                            className="w-full bg-green-600/20 hover:bg-green-600/30 text-green-400 border border-green-600/20"
+                            className="w-full bg-green-600/20 hover:bg-green-600/30 text-green-400 border border-green-600/20 mt-auto"
                         >
                             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Process Import
-                        </Button>
-                        <hr className="border-white/10" />
-                        <Button 
-                            variant="outline"
-                            onClick={() => {
-                                setEditingTeam({ id: "", name: "", members: [] });
-                                setEditDialogOpen(true);
-                            }}
-                            className="w-full bg-blue-600/10 border-blue-500/20 text-blue-300 hover:bg-blue-600/20 hover:text-white"
-                        >
-                            <Plus className="mr-2 h-4 w-4" />
-                            Manually Create Team
                         </Button>
                     </CardContent>
                 </Card>
@@ -1057,53 +1151,93 @@ export default function AdminPage() {
         </div>
 
         <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-            <DialogContent className="bg-slate-900 border border-white/10 text-white sm:max-w-md">
+            <DialogContent className="bg-slate-900 border border-white/10 text-white sm:max-w-3xl font-lora max-h-[90vh] overflow-hidden flex flex-col">
 
                 <DialogHeader>
-                    <DialogTitle>Edit Team</DialogTitle>
+                    <DialogTitle className="text-xl md:text-2xl">Edit Team</DialogTitle>
                     <DialogDescription className="text-slate-400">
                         Update team details and member information.
                     </DialogDescription>
                 </DialogHeader>
                 {editingTeam && (
-                    <form onSubmit={(e) => { e.preventDefault(); saveTeamUpdates(); }} className="space-y-4 max-h-[80vh] overflow-y-auto pr-2 custom-scrollbar">
-                        <div className="space-y-2">
-                            <Label className="text-white">Team Name</Label>
-                            <Input 
-                                value={editingTeam.name || ""} 
-                                onChange={(e) => setEditingTeam({...editingTeam, name: e.target.value})}
-                                className="bg-black/20 border-white/10 text-white"
-                            />
-                        </div>
-                         <div className="space-y-2">
-                            <Label className="text-white">Leader Email</Label>
-                            <Input 
-                                value={editingTeam.leaderEmail || ""} 
-                                onChange={(e) => setEditingTeam({...editingTeam, leaderEmail: e.target.value})}
-                                className="bg-black/20 border-white/10 text-white"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label className="text-white">Leader Phone</Label>
-                            <Input 
-                                value={editingTeam.leaderPhone || ""} 
-                                onChange={(e) => setEditingTeam({...editingTeam, leaderPhone: e.target.value})}
-                                className="bg-black/20 border-white/10 text-white"
-                            />
-                        </div>
-                         <div className="space-y-2">
-                            <Label className="text-white">Problem Statement ID</Label>
-                            <Input 
-                                value={editingTeam.problemStatementId || ""} 
-                                onChange={(e) => setEditingTeam({...editingTeam, problemStatementId: e.target.value || null})}
-                                placeholder="None"
-                                className="bg-black/20 border-white/10 text-white"
-                            />
+                    <form onSubmit={(e) => { e.preventDefault(); saveTeamUpdates(); }} className="space-y-6 overflow-y-auto pr-2 custom-scrollbar flex-1 p-1">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label className="text-white">Team Name</Label>
+                                <Input 
+                                    value={editingTeam.name || ""} 
+                                    onChange={(e) => setEditingTeam({...editingTeam, name: e.target.value})}
+                                    className="bg-black/20 border-white/10 text-white"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-white">Problem Statement</Label>
+                                <Select 
+                                    value={editingTeam.problemStatementId || "none"} 
+                                    onValueChange={(val) => setEditingTeam({...editingTeam, problemStatementId: val === "none" ? undefined : val})}
+                                >
+                                    <SelectTrigger className="bg-black/20 border-white/10 text-white">
+                                        <SelectValue placeholder="Select Problem" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-slate-900 border-white/10 text-white max-h-[200px]">
+                                        <SelectItem value="none">None</SelectItem>
+                                        {problemStatements.map(ps => (
+                                            <SelectItem key={ps.id} value={ps.id}>
+                                                [{ps.id}] {ps.title}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* Open Innovation Fields */}
+                            {problemStatements.find(ps => ps.id === editingTeam.problemStatementId)?.title.toLowerCase().includes("open innovation") && (
+                                <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border border-white/10 rounded-lg bg-white/5">
+                                    <div className="col-span-1 md:col-span-2">
+                                        <h4 className="text-yellow-400 font-semibold mb-2">Open Innovation Details</h4>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Custom Title</Label>
+                                        <Input 
+                                            value={editingTeam.customProblemTitle || ""} 
+                                            onChange={(e) => setEditingTeam({...editingTeam, customProblemTitle: e.target.value})}
+                                            className="bg-black/20 border-white/10 text-white placeholder:text-slate-500"
+                                            placeholder="Enter their problem title"
+                                        />
+                                    </div>
+                                    <div className="space-y-2 col-span-1 md:col-span-2">
+                                        <Label>Custom Description</Label>
+                                        <Textarea 
+                                            value={editingTeam.customProblemDescription || ""} 
+                                            onChange={(e) => setEditingTeam({...editingTeam, customProblemDescription: e.target.value})}
+                                            className="bg-black/20 border-white/10 text-white placeholder:text-slate-500"
+                                            placeholder="Enter their problem description"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="space-y-2">
+                                <Label className="text-white">Leader Email</Label>
+                                <Input 
+                                    value={editingTeam.leaderEmail || ""} 
+                                    onChange={(e) => setEditingTeam({...editingTeam, leaderEmail: e.target.value})}
+                                    className="bg-black/20 border-white/10 text-white"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-white">Leader Phone</Label>
+                                <Input 
+                                    value={editingTeam.phone || ""} 
+                                    onChange={(e) => setEditingTeam({...editingTeam, phone: e.target.value})}
+                                    className="bg-black/20 border-white/10 text-white"
+                                />
+                            </div>
                         </div>
 
-                         <div className="space-y-2 pt-4 border-t border-white/10">
+                         <div className="space-y-4 pt-4 border-t border-white/10">
                             <div className="flex justify-between items-center">
-                                <Label className="text-white text-lg">Members</Label>
+                                <Label className="text-white text-lg font-semibold">Members</Label>
                                  <Button 
                                     type="button" 
                                     size="sm" 
@@ -1111,32 +1245,32 @@ export default function AdminPage() {
                                         const newMember = { name: "New Member", email: "", phone: "", gender: "Male", course: "B.Tech", year: "1" };
                                         setEditingTeam({...editingTeam, members: [...(editingTeam.members || []), newMember]});
                                     }}
-                                    className="bg-green-600 hover:bg-green-700 text-white h-8 text-xs"
+                                    className="bg-green-600 hover:bg-green-700 text-white"
                                 >
-                                    <Plus className="w-3 h-3 mr-1" /> Add
+                                    <Plus className="w-4 h-4 mr-1" /> Add Member
                                 </Button>
                             </div>
                             
-                            <div className="space-y-4 mt-2">
+                            <div className="grid grid-cols-1 gap-4">
                                 {editingTeam.members?.map((member, idx) => (
-                                    <div key={idx} className="bg-white/5 rounded p-3 space-y-3 relative group border border-white/5 hover:border-white/10">
-                                        <div className="absolute top-2 right-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div key={idx} className="bg-white/5 rounded-xl p-4 space-y-3 relative group border border-white/5 hover:border-white/20 transition-all">
+                                        <div className="absolute top-3 right-3 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                             <Button 
                                                 type="button" 
                                                 size="icon" 
                                                 variant="ghost" 
-                                                className="h-6 w-6 text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                                                className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-900/20"
                                                 onClick={() => {
                                                     const newMembers = [...(editingTeam.members || [])];
                                                     newMembers.splice(idx, 1);
                                                     setEditingTeam({...editingTeam, members: newMembers});
                                                 }}
                                             >
-                                                <Trash2 className="w-3 h-3" />
+                                                <Trash2 className="w-4 h-4" />
                                             </Button>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                            <div className="space-y-1.5">
                                                 <Label className="text-xs text-slate-400">Name</Label>
                                                  <Input 
                                                     value={typeof member === 'string' ? member : member.name || ""} 
@@ -1149,10 +1283,10 @@ export default function AdminPage() {
                                                         }
                                                         setEditingTeam({...editingTeam, members: newMembers});
                                                     }}
-                                                    className="bg-black/20 border-white/10 text-white h-7 text-xs"
+                                                    className="bg-black/20 border-white/10 text-white h-9 text-sm"
                                                 />
                                             </div>
-                                             <div>
+                                             <div className="space-y-1.5">
                                                 <Label className="text-xs text-slate-400">Email</Label>
                                                  <Input 
                                                     value={typeof member === 'string' ? "" : member.email || ""} 
@@ -1162,10 +1296,10 @@ export default function AdminPage() {
                                                         newMembers[idx].email = e.target.value;
                                                         setEditingTeam({...editingTeam, members: newMembers});
                                                     }}
-                                                    className="bg-black/20 border-white/10 text-white h-7 text-xs"
+                                                    className="bg-black/20 border-white/10 text-white h-9 text-sm"
                                                 />
                                             </div>
-                                             <div>
+                                             <div className="space-y-1.5">
                                                 <Label className="text-xs text-slate-400">Phone</Label>
                                                  <Input 
                                                     value={typeof member === 'string' ? "" : member.phone || ""} 
@@ -1175,10 +1309,10 @@ export default function AdminPage() {
                                                         newMembers[idx].phone = e.target.value;
                                                         setEditingTeam({...editingTeam, members: newMembers});
                                                     }}
-                                                    className="bg-black/20 border-white/10 text-white h-7 text-xs"
+                                                    className="bg-black/20 border-white/10 text-white h-9 text-sm"
                                                 />
                                             </div>
-                                             <div>
+                                             <div className="space-y-1.5">
                                                 <Label className="text-xs text-slate-400">Gender</Label>
                                                  <Input 
                                                     value={typeof member === 'string' ? "" : member.gender || ""} 
@@ -1188,10 +1322,10 @@ export default function AdminPage() {
                                                         newMembers[idx].gender = e.target.value;
                                                         setEditingTeam({...editingTeam, members: newMembers});
                                                     }}
-                                                    className="bg-black/20 border-white/10 text-white h-7 text-xs"
+                                                    className="bg-black/20 border-white/10 text-white h-9 text-sm"
                                                 />
                                             </div>
-                                             <div>
+                                             <div className="space-y-1.5">
                                                 <Label className="text-xs text-slate-400">Course</Label>
                                                  <Input 
                                                     value={typeof member === 'string' ? "" : member.course || ""} 
@@ -1201,10 +1335,10 @@ export default function AdminPage() {
                                                         newMembers[idx].course = e.target.value;
                                                         setEditingTeam({...editingTeam, members: newMembers});
                                                     }}
-                                                    className="bg-black/20 border-white/10 text-white h-7 text-xs"
+                                                    className="bg-black/20 border-white/10 text-white h-9 text-sm"
                                                 />
                                             </div>
-                                             <div>
+                                             <div className="space-y-1.5">
                                                 <Label className="text-xs text-slate-400">Year</Label>
                                                  <Input 
                                                     value={typeof member === 'string' ? "" : member.year || ""} 
@@ -1214,7 +1348,7 @@ export default function AdminPage() {
                                                         newMembers[idx].year = e.target.value;
                                                         setEditingTeam({...editingTeam, members: newMembers});
                                                     }}
-                                                    className="bg-black/20 border-white/10 text-white h-7 text-xs"
+                                                    className="bg-black/20 border-white/10 text-white h-9 text-sm"
                                                 />
                                             </div>
                                         </div>
@@ -1223,7 +1357,7 @@ export default function AdminPage() {
                             </div>
                         </div>
 
-                        <DialogFooter>
+                        <DialogFooter className="pt-4">
                             <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)} className="bg-transparent border-white/10 text-white hover:bg-white/10">
                                 Cancel
                             </Button>
@@ -1237,9 +1371,9 @@ export default function AdminPage() {
         </Dialog>
 
         <Dialog open={editPsOpen} onOpenChange={setEditPsOpen}>
-            <DialogContent className="bg-slate-900 border border-white/10 text-white sm:max-w-md">
+            <DialogContent className="bg-slate-900 border border-white/10 text-white sm:max-w-2xl font-lora">
                 <DialogHeader>
-                    <DialogTitle>Edit Problem Statement</DialogTitle>
+                    <DialogTitle className="text-xl md:text-2xl">Edit Problem Statement</DialogTitle>
                      <DialogDescription className="text-slate-400">
                         Update details for {editingPs?.id}
                     </DialogDescription>

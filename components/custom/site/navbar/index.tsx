@@ -10,7 +10,7 @@ import { MobileNav } from "./mobile.nav";
 
 export function SiteNavbar() {
   return (
-    <header className="fixed top-5 w-5/6 z-500 border border-border/40 bg-secondary/10 backdrop-blur-sm supports-backdrop-filter:bg-secondary/10 dark:border-border rounded-xl">
+    <header className="fixed top-5 w-5/6 z-40 border border-border/40 bg-secondary/10 backdrop-blur-sm supports-backdrop-filter:bg-secondary/10 dark:border-border rounded-xl">
       <div className="container flex h-12 max-w-screen items-center justify-between px-4">
         <div className="flex items-center space-x-4">
           <div className="md:hidden">

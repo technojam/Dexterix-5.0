@@ -10,7 +10,7 @@ export async function POST(req: Request) {
 
     // Case 1: Team Selecting a Problem (Has teamId)
     if (body.teamId && body.problemStatementId && body.leaderEmail) {
-      const { teamId, problemStatementId, leaderEmail } = body;
+      const { teamId, problemStatementId, leaderEmail, leaderName, customTitle, customDescription } = body;
 
       // Check availability
       const ps = await cosmosService.getProblemStatement(problemStatementId);
@@ -37,12 +37,32 @@ export async function POST(req: Request) {
       const team = await cosmosService.getTeam(teamId);
       if (!team) return NextResponse.json({ error: "Team not found" }, { status: 404 });
       
-      // Verify Leader Email
-      if (!team.leaderEmail || team.leaderEmail.toLowerCase() !== leaderEmail.toLowerCase()) {
+      // Verify Leader Details
+      const normalizedEmail = leaderEmail.trim().toLowerCase();
+      const dbEmail = (team.leaderEmail || "").trim().toLowerCase();
+      
+      if (!dbEmail || dbEmail !== normalizedEmail) {
          return NextResponse.json({ error: "Team Leader Email does not match our records." }, { status: 403 });
+      }
+
+      // Optional: Verify Name if provided (fuzzy match or exact?)
+      // User asked to fill leader name, checks are safer if loose but consistency is key.
+      if (leaderName) {
+          const normalizedInputName = leaderName.trim().toLowerCase();
+          const dbName = (team.leaderName || "").trim().toLowerCase();
+          // Relaxed check: input name should be at least contained in DB name or vice-versa to handle "John" vs "John Doe"
+          if (!dbName || !dbName.includes(normalizedInputName)) {
+               // We won't block strictly on name to avoid frustration if they typed "John" vs "John D."
+               // But if they are drastically different, maybe? 
+               // For now, let's just log or trust Email as the primary key.
+               // If strict check is needed: 
+               // if (dbName !== normalizedInputName) return NextResponse.json({ error: "Leader Name mismatch" }, { status: 403 });
+          }
       }
       
       team.problemStatementId = problemStatementId;
+      if (customTitle) team.customProblemTitle = customTitle;
+      if (customDescription) team.customProblemDescription = customDescription;
       await cosmosService.updateTeam(team);
 
       return NextResponse.json({ success: true, team });
