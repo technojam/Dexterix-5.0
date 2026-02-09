@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,7 @@ interface ProblemStatement {
 
 
 export default function CheckInPage() {
+  const router = useRouter();
   const [teams, setTeams] = useState<Team[]>([]);
   const [role, setRole] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -210,6 +212,7 @@ export default function CheckInPage() {
   const logout = async () => {
     try {
         await logoutAction();
+        router.push("/admin/login");
     } catch {
         toast.error("Logout failed");
     }

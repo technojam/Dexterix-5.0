@@ -67,5 +67,5 @@ export async function loginAction(prevState: any, formData: FormData) { // eslin
 
 export async function logoutAction() {
   (await cookies()).delete("session");
-  redirect("/admin/login");
+  return { success: true };
 }

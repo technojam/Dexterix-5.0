@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -58,6 +59,7 @@ interface AdminSettings {
 
 
 export default function AdminPage() {
+  const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   
@@ -152,9 +154,12 @@ export default function AdminPage() {
   };
 
   const logout = async () => {
-    // Server action handles redirect, which might throw an error we should ignore or let bubble up.
-    // However, for client-side triggered server actions, simply calling it is often enough.
-    await logoutAction();
+    try {
+        await logoutAction();
+        router.push("/admin/login");
+    } catch {
+        toast.error("Logout failed");
+    }
   };
 
   const deleteTeam = async (id: string) => {

@@ -26,6 +26,8 @@ export interface ITeam {
   score?: number; 
   checkedIn?: boolean; // Check-in status
   tableNumber?: string; // Assigned table
+  customProblemTitle?: string;
+  customProblemDescription?: string;
 }
 
 export interface IGlobalSettings {
