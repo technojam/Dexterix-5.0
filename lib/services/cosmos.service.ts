@@ -37,12 +37,15 @@ export interface IGlobalSettings {
   volunteersCanEditTeams?: boolean;
   showHardware: boolean;
   showSoftware: boolean;
+  rankingTitle?: string;
   leaderboardColumns?: {
     rank: boolean;
     team: boolean;
     teamId: boolean;
     problem: boolean;
     score: boolean;
+    leaderName?: boolean;
+    leaderEmail?: boolean;
   };
 }
 

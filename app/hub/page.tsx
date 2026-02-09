@@ -81,7 +81,8 @@ async function getHubData() {
         canRegister: isRegistrationOpen,
         registrationOpenTime: settings.registrationOpenTime || null,
         registrationCloseTime: settings.registrationCloseTime || null,
-        leaderboardColumns: settings.leaderboardColumns
+        leaderboardColumns: settings.leaderboardColumns,
+        rankingTitle: settings.rankingTitle
       }
     };
 }
@@ -98,8 +99,11 @@ async function getLeaderboardData() {
 
         const lb = teams.map(t => ({
             id: t.id,
-            teamId: t.teamId,
-            name: t.name,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            teamId: t.teamId || (t as any).TeamId || (t as any).TeamID || t.id || "N/A",
+            name: t.name || (t as any).TeamName || "Unknown Team",
+            leaderName: t.leaderName,
+            leaderEmail: t.leaderEmail,
             problemStatement: psMap.get(t.problemStatementId || "") || "N/A",
             score: t.score || 0
         }))

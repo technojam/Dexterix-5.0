@@ -64,7 +64,10 @@ export interface PageData {
         teamId: boolean;
         problem: boolean;
         score: boolean;
+        leaderName?: boolean;
+        leaderEmail?: boolean;
     };
+    rankingTitle?: string;
   };
 }
 
@@ -262,9 +265,16 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
             <TabsContent value="leaderboard" className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500">
                 <Card className="bg-secondary/20 border-white/10 backdrop-blur-md">
                     <CardHeader>
-                        <CardTitle className="text-white font-lora text-2xl flex items-center gap-2">
-                            <Trophy className="h-6 w-6 text-yellow-500" />
-                            Live Rankings
+                        <CardTitle className="text-white font-lora text-2xl flex items-center gap-2 flex-wrap">
+                            <div className="flex items-center gap-2">
+                                <Trophy className="h-6 w-6 text-yellow-500" />
+                                Live Rankings
+                            </div>
+                            {initialData.config.rankingTitle && (
+                                <Badge variant="outline" className="ml-0 sm:ml-2 border-yellow-500/30 text-yellow-400 bg-yellow-500/5">
+                                    {initialData.config.rankingTitle}
+                                </Badge>
+                            )}
                         </CardTitle>
                         <CardDescription className="font-lora">Real-time scores based on team performance.</CardDescription>
                     </CardHeader>
@@ -274,9 +284,10 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
                                 <thead className="[&_tr]:border-b [&_tr]:border-white/10 bg-white/5">
                                     <tr className="border-b transition-colors text-white">
                                         {cols.rank && <th className="h-12 px-4 align-middle font-medium text-muted-foreground font-lora">Rank</th>}
-                                        {cols.team && <th className="h-12 px-4 align-middle font-medium text-muted-foreground font-lora">Team</th>}
                                         {cols.teamId && <th className="h-12 px-4 align-middle font-medium text-muted-foreground font-lora">Team ID</th>}
-                                        {cols.problem && <th className="h-12 px-4 align-middle font-medium text-muted-foreground font-lora">Problem</th>}
+                                        {cols.team && <th className="h-12 px-4 align-middle font-medium text-muted-foreground font-lora">Team</th>}
+                                        {cols.leaderName && <th className="h-12 px-4 align-middle font-medium text-muted-foreground font-lora">Leader</th>}
+                                        {cols.leaderEmail && <th className="h-12 px-4 align-middle font-medium text-muted-foreground font-lora">Email</th>}
                                         {cols.score && <th className="h-12 px-4 align-middle font-medium text-muted-foreground text-right font-lora">Score</th>}
                                     </tr>
                                 </thead>
@@ -285,10 +296,11 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
                                         leaderboard.map((team, index) => (
                                             <tr key={team.id} className="border-b border-white/5 transition-colors hover:bg-white/5">
                                                 {cols.rank && <td className="p-4 align-middle font-bold text-white font-mono text-lg">#{index + 1}</td>}
+                                                {cols.teamId && <td className="p-4 align-middle text-slate-300 font-mono text-xs max-w-[120px] truncate" title={team.teamId}>{team.teamId}</td>}
                                                 {cols.team && <td className="p-4 align-middle text-white font-lora">{team.name}</td>}
-                                                {cols.teamId && <td className="p-4 align-middle text-white/50 font-mono text-xs max-w-[100px] truncate" title={team.teamId}>{team.teamId}</td>}
-                                                {cols.problem && <td className="p-4 align-middle text-gray-400 font-sans text-xs">{team.problemStatement}</td>}
-                                                {cols.score && <td className="p-4 align-middle text-right font-mono text-primary font-bold text-lg">{team.score}</td>}
+                                                {cols.leaderName && <td className="p-4 align-middle text-white/70 font-lora text-sm">{(team as any).leaderName || "N/A"}</td>}
+                                                {cols.leaderEmail && <td className="p-4 align-middle text-white/50 font-mono text-xs max-w-[150px] truncate" title={(team as any).leaderEmail}>{(team as any).leaderEmail || "N/A"}</td>}
+                                                {cols.score && <td className="p-4 align-middle text-right font-mono text-white font-bold text-lg">{team.score}</td>}
                                             </tr>
                                         ))
                                     ) : (

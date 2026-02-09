@@ -60,6 +60,10 @@ interface AdminSettings {
 export default function AdminPage() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  // Leaderboard Upload
+  const [scoreFile, setScoreFile] = useState<File | null>(null);
+  const [scoreLoading, setScoreLoading] = useState(false);
 
   // Teams Data
   const [teams, setTeams] = useState<Team[]>([]);
@@ -504,6 +508,46 @@ export default function AdminPage() {
      return `${h}:${m}`;
   };
 
+  const handleScoreFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setScoreFile(e.target.files[0]);
+    }
+  };
+
+  const uploadScores = async () => {
+    if (!scoreFile) return;
+    setScoreLoading(true);
+    const formData = new FormData();
+    formData.append("file", scoreFile);
+
+    try {
+      const res = await fetch("/api/admin/leaderboard/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`Updated ${data.updated} teams`, {
+            description: data.errors.length > 0 ? (
+                <div className="max-h-[100px] overflow-y-auto text-xs mt-1 text-red-300">
+                    {data.errors.map((e: string, i: number) => <div key={i}>{e}</div>)}
+                </div>
+            ) : undefined,
+            duration: 5000
+        });
+        setScoreFile(null);
+        // Reset file input value if possible, or reliance on key change/re-render
+        fetchTeams(); 
+      } else {
+        toast.error(data.error || "Upload failed");
+      }
+    } catch {
+      toast.error("Upload failed");
+    } finally {
+      setScoreLoading(false);
+    }
+  };
+
   if (!settings && !loading) {
       // Allow initial load
   }
@@ -692,24 +736,92 @@ export default function AdminPage() {
 
                          {/* Leaderboard Config */}
                         <div className="space-y-4 pt-4 border-t border-white/5">
-                            <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">Leaderboard Columns</h3>
+                            <div className="flex justify-between items-center">
+                                <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">Leaderboard Configuration</h3>
+                                <Button 
+                                    size="sm" 
+                                    variant="destructive"
+                                    className="h-7 text-xs bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"
+                                    onClick={async () => {
+                                        if(!confirm("Are you sure you want to RESET the Leaderboard? All scores will be removed.")) return;
+                                        try {
+                                            const res = await fetch("/api/admin/leaderboard/reset", { method: "POST" });
+                                            if(res.ok) toast.success("Leaderboard Reset");
+                                            else toast.error("Failed to reset");
+                                        } catch { toast.error("Network Error"); }
+                                    }}
+                                >
+                                    Reset Rankings
+                                </Button>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-xs text-slate-400">Ranking Title</Label>
+                                <Input 
+                                    value={settings.rankingTitle || ""}
+                                    onChange={(e) => setSettings({...settings, rankingTitle: e.target.value})}
+                                    placeholder="e.g. Round 1 Evaluation"
+                                    className="bg-black/20 border-white/10 text-white"
+                                />
+                            </div>
+
+                            <Label className="text-xs text-slate-400 mt-2 block">Visible Columns</Label>
                             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                                {Object.keys(settings.leaderboardColumns || {}).map((key) => (
+                                {['rank', 'team', 'teamId', 'leaderName', 'leaderEmail', 'score'].map((key) => (
                                     <label key={key} className={`
                                         flex items-center justify-center p-3 rounded-lg border border-dashed cursor-pointer transition-all duration-300 text-sm
-                                        ${settings.leaderboardColumns[key] 
+                                        ${settings.leaderboardColumns?.[key] 
                                             ? 'bg-blue-500/10 border-blue-500/40 text-blue-200' 
                                             : 'border-white/10 text-slate-500 hover:border-white/20 hover:text-slate-300'}
                                     `}>
                                         <input 
                                             type="checkbox" 
-                                            checked={settings.leaderboardColumns[key]}
+                                            checked={!!settings.leaderboardColumns?.[key]}
                                             onChange={() => toggleColumn(key)}
                                             className="hidden"
                                         />
                                         <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
                                     </label>
                                 ))}
+                            </div>
+
+                            <div className="mt-4 p-4 bg-black/20 rounded-xl border border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-yellow-500/10 rounded-lg text-yellow-400">
+                                        <Upload className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-white font-medium text-sm">Update Scores</h4>
+                                        <p className="text-[10px] text-slate-500">Upload CSV/Excel with 'Team ID' and 'Score' columns.</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2 items-center w-full md:w-auto">
+                                     <div className="relative group flex-1 md:w-64">
+                                        <div className={`
+                                            absolute inset-0 bg-blue-500/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition-opacity
+                                            ${scoreFile ? 'opacity-50' : ''}
+                                        `} />
+                                        <div className="relative flex items-center justify-center border border-dashed border-white/20 rounded-lg px-4 py-2 hover:bg-white/5 cursor-pointer transition-all">
+                                            <span className="text-xs text-slate-300 truncate max-w-[200px]">
+                                                {scoreFile ? scoreFile.name : "Select Score File"}
+                                            </span>
+                                            <Input 
+                                                type="file" 
+                                                accept=".csv,.xlsx" 
+                                                onChange={handleScoreFileChange} 
+                                                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                                            />
+                                        </div>
+                                     </div>
+                                    <Button 
+                                        onClick={uploadScores}
+                                        disabled={!scoreFile || scoreLoading}
+                                        size="sm"
+                                        className="bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 border border-yellow-600/20"
+                                    >
+                                        {scoreLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Upload"}
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </CardContent>
