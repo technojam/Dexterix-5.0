@@ -7,17 +7,64 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { StarsBackground } from "@/components/ui/stars-bg";
-import { Loader2, Save, Upload, Plus, Settings, Calendar, Layers, LogOut, Trash2, ArrowRight, LayoutDashboard } from "lucide-react";
+import { Loader2, Save, Upload, Plus, Settings, Calendar, Layers, LogOut, Trash2, ArrowRight, LayoutDashboard, Edit } from "lucide-react";
 import Link from "next/link";
 import { logoutAction } from "@/app/actions/auth";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+
+interface Member {
+  name: string;
+  email?: string;
+  phone?: string;
+  gender?: string;
+  course?: string;
+  year?: string;
+  [key: string]: any;
+}
+
+interface Team {
+  id: string;
+  name: string;
+  leaderName?: string;
+  leaderEmail?: string;
+  leaderPhone?: string;
+  members: Member[];
+  college?: string;
+  year?: string;
+  checkedIn?: boolean;
+  tableNumber?: string | number;
+  psId?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+}
+
+interface ProblemStatement {
+  id: string;
+  title: string;
+  description?: string;
+  domain?: string;
+  maxLimit?: number;
+  category?: string;
+  _count?: { teams: number };
+  [key: string]: any;
+}
+
+interface AdminSettings {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+}
+
 
 export default function AdminPage() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Teams Data
-  const [teams, setTeams] = useState<any[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [teamsLoading, setTeamsLoading] = useState(true);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [editingTeam, setEditingTeam] = useState<Team | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   // Problem Statement Form
   const [psId, setPsId] = useState("");
@@ -27,17 +74,21 @@ export default function AdminPage() {
   const [psLimit, setPsLimit] = useState(10);
   const [psCategory, setPsCategory] = useState("Software");
   const [psLoading, setPsLoading] = useState(false);
-  const [problemStatements, setProblemStatements] = useState<any[]>([]);
+  const [problemStatements, setProblemStatements] = useState<ProblemStatement[]>([]);
+
+  // Edit PS State
+  const [editingPs, setEditingPs] = useState<ProblemStatement | null>(null);
+  const [editPsOpen, setEditPsOpen] = useState(false);
 
   // Settings Form
-  const [settings, setSettings] = useState<any>(null);
+  const [settings, setSettings] = useState<AdminSettings | null>(null);
   const [settingsLoading, setSettingsLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/settings")
       .then(res => res.json())
       .then(data => setSettings(data))
-      .catch(err => toast.error("Failed to load settings"));
+      .catch(() => toast.error("Failed to load settings"));
 
     fetchTeams();
     fetchProblems();
@@ -45,10 +96,10 @@ export default function AdminPage() {
 
   const fetchProblems = async () => {
       try {
-          const res = await fetch("/api/hub"); // Utilizes the GET endpoint we already have
+          const res = await fetch("/api/hub?admin=true"); // Fetch all for admin
           const data = await res.json();
           if(data.problems) setProblemStatements(data.problems);
-      } catch (e) {
+      } catch {
           console.error("Failed to fetch PS");
       }
   };
@@ -60,20 +111,43 @@ export default function AdminPage() {
           const data = await res.json();
           if (res.ok) {
               setTeams(data.teams || []);
+              if (data.role) setUserRole(data.role);
           }
-      } catch (error) {
+      } catch {
           toast.error("Failed to load teams");
       } finally {
           setTeamsLoading(false);
       }
   };
 
+  const saveTeamUpdates = async () => {
+      if (!editingTeam) return;
+      try {
+          const method = editingTeam.id ? "PATCH" : "POST";
+          const res = await fetch("/api/admin/teams", {
+              method: method,
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(editingTeam)
+          });
+          
+          if (res.ok) {
+              toast.success(`Team ${method === "POST" ? "Created" : "Updated"}`);
+              setEditDialogOpen(false);
+              setEditingTeam(null);
+              fetchTeams(); // Refresh data
+          } else {
+              const data = await res.json();
+              toast.error(data.error || "Update failed");
+          }
+      } catch {
+          toast.error("Network error");
+      }
+  };
+
   const logout = async () => {
-    try {
-        await logoutAction();
-    } catch (e) {
-        toast.error("Logout failed");
-    }
+    // Server action handles redirect, which might throw an error we should ignore or let bubble up.
+    // However, for client-side triggered server actions, simply calling it is often enough.
+    await logoutAction();
   };
 
   const deleteTeam = async (id: string) => {
@@ -86,7 +160,7 @@ export default function AdminPage() {
           } else {
               toast.error("Failed to delete team");
           }
-      } catch (e) {
+      } catch {
           toast.error("Error deleting team");
       }
   };
@@ -101,7 +175,7 @@ export default function AdminPage() {
           } else {
               toast.error("Failed to clear teams");
           }
-      } catch (e) {
+      } catch {
           toast.error("Error clearing teams");
       }
   };
@@ -116,12 +190,12 @@ export default function AdminPage() {
           } else {
               toast.error("Failed to reset check-ins");
           }
-      } catch (e) {
+      } catch {
           toast.error("Network error during reset");
       } 
   };
 
-  const manuallyCheckout = async (team: any) => {
+  const manuallyCheckout = async (team: Team) => {
         if (!confirm(`Force checkout for team ${team.name}? Table ${team.tableNumber} will be freed.`)) return;
         try {
             const res = await fetch("/api/admin/checkin", { 
@@ -136,7 +210,7 @@ export default function AdminPage() {
             } else {
                 toast.error("Failed to checkout team");
             }
-        } catch(e) {
+        } catch {
             toast.error("Error checking out");
         }
   };
@@ -165,7 +239,7 @@ export default function AdminPage() {
       } else {
         toast.error(data.error);
       }
-    } catch (error) {
+    } catch {
       toast.error("Upload failed");
     } finally {
       setLoading(false);
@@ -202,7 +276,7 @@ export default function AdminPage() {
             const json = await res.json();
             toast.error(json.error || "Failed is create problem statement");
         }
-    } catch (e) {
+    } catch {
         toast.error("Network error");
     } finally {
         setPsLoading(false);
@@ -221,12 +295,51 @@ export default function AdminPage() {
           } else {
               toast.error("Failed to delete");
           }
-      } catch(e) {
+      } catch {
           toast.error("Error deleting PS");
       }
   };
 
-  const unassignTeamFromPs = async (team: any) => {
+  const openEditPs = (ps: ProblemStatement) => {
+      setEditingPs(ps);
+      setEditPsOpen(true);
+  };
+
+  const updatePs = async () => {
+    if (!editingPs) return;
+    setPsLoading(true);
+    try {
+        // Using POST for create/update if the backend supports upsert, otherwise we need PUT/PATCH
+        // Assuming current /api/hub handles upsert based on ID or we can modify it
+        const res = await fetch("/api/hub", {
+            method: "POST", // Re-using POST for now, assuming upsert logic or will modify route
+            body: JSON.stringify({ 
+                id: editingPs.id, 
+                title: editingPs.title, 
+                description: editingPs.description, 
+                maxLimit: editingPs.maxLimit, 
+                category: editingPs.category,
+                domain: editingPs.domain 
+            }),
+            headers: { "Content-Type": "application/json" }
+        });
+        if (res.ok) {
+            toast.success("Problem Statement Updated");
+            setEditPsOpen(false);
+            setEditingPs(null);
+            fetchProblems();
+        } else {
+            const json = await res.json();
+            toast.error(json.error || "Update failed");
+        }
+    } catch {
+        toast.error("Network error");
+    } finally {
+        setPsLoading(false);
+    }
+  };
+
+  const unassignTeamFromPs = async (team: Team) => {
       if(!confirm(`Unassign team ${team.name} from current problem statement?`)) return;
       try {
           const res = await fetch("/api/admin/checkin", {
@@ -240,7 +353,7 @@ export default function AdminPage() {
             } else {
                 toast.error("Failed to unassign");
             }
-      } catch (e) {
+      } catch {
           toast.error("Operation failed");
       }
   };
@@ -258,7 +371,7 @@ export default function AdminPage() {
         } else {
             toast.error("Failed to update settings");
         }
-    } catch (e) {
+    } catch {
         toast.error("Error saving settings");
     } finally {
         setSettingsLoading(false);
@@ -266,23 +379,30 @@ export default function AdminPage() {
   };
 
   const toggleColumn = (key: string) => {
-      setSettings((prev: any) => ({
-          ...prev,
-          leaderboardColumns: {
-              ...prev.leaderboardColumns,
-              [key]: !prev.leaderboardColumns?.[key]
-          }
-      }));
+      setSettings((prev) => {
+          if (!prev) return prev;
+          return {
+              ...prev,
+              leaderboardColumns: {
+                  ...prev.leaderboardColumns,
+                  [key]: !prev.leaderboardColumns?.[key]
+              }
+          };
+      });
   };
   
   const toggleSetting = (key: string) => {
-      setSettings((prev: any) => ({
-          ...prev,
-          [key]: !prev[key]
-      }));
+      setSettings((prev) => {
+          if (!prev) return prev;
+          return {
+              ...prev,
+              [key]: !prev[key]
+          };
+      });
   };
 
   const updateDateTime = (settingKey: string, type: 'date' | 'time', value: string) => {
+    if (!settings) return;
     const currentStr = settings[settingKey] || new Date().toISOString();
     let date = new Date(currentStr);
     if (isNaN(date.getTime())) date = new Date(); // Fallback if invalid
@@ -426,6 +546,19 @@ export default function AdminPage() {
                                             checked={settings.showSoftware || false}
                                             onChange={() => toggleSetting('showSoftware')}
                                             className="h-5 w-5 rounded border-white/20 bg-white/10 text-blue-500 focus:ring-blue-500 focus:ring-offset-0 flex-shrink-0"
+                                        />
+                                    </div>
+                                    <div className="flex items-center justify-between p-2 hover:bg-white/5 rounded-lg transition-colors gap-4">
+                                        <Label htmlFor="volunteersCanEdit" className="cursor-pointer flex-1 min-w-0 flex flex-col">
+                                            <span className="text-white break-words whitespace-normal">Volunteers Can Edit Teams</span>
+                                            <span className="text-xs text-slate-500 font-normal mt-1">Allow volunteers to modify participant details.</span>
+                                        </Label>
+                                        <input 
+                                            type="checkbox" 
+                                            id="volunteersCanEdit"
+                                            checked={settings.volunteersCanEditTeams || false}
+                                            onChange={() => toggleSetting('volunteersCanEditTeams')}
+                                            className="h-5 w-5 rounded border-white/20 bg-white/10 text-purple-500 focus:ring-purple-500 focus:ring-offset-0 flex-shrink-0"
                                         />
                                     </div>
                                 </div>
@@ -661,6 +794,19 @@ export default function AdminPage() {
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
+                                                {userRole === "admin" && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-slate-500 hover:text-blue-400 hover:bg-blue-500/10"
+                                                        onClick={() => {
+                                                            setEditingTeam({...team});
+                                                            setEditDialogOpen(true);
+                                                        }}
+                                                    >
+                                                        <Edit className="h-4 w-4" />
+                                                    </Button>
+                                                )}
                                             </div>
                                         </div>
                                     ))
@@ -707,6 +853,18 @@ export default function AdminPage() {
                         >
                             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Process Import
+                        </Button>
+                        <hr className="border-white/10" />
+                        <Button 
+                            variant="outline"
+                            onClick={() => {
+                                setEditingTeam({ id: "", name: "", members: [] });
+                                setEditDialogOpen(true);
+                            }}
+                            className="w-full bg-blue-600/10 border-blue-500/20 text-blue-300 hover:bg-blue-600/20 hover:text-white"
+                        >
+                            <Plus className="mr-2 h-4 w-4" />
+                            Manually Create Team
                         </Button>
                     </CardContent>
                 </Card>
@@ -811,7 +969,7 @@ export default function AdminPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="rounded-md border border-white/10 overflow-hidden">
-                            <div className="hidden md:grid bg-white/5 p-3 grid-cols-12 gap-4 text-sm font-medium text-slate-300">
+                            <div className="hidden md:grid bg-white/5 p-3 grid-cols-12 gap-4 text-sm font-medium text-white">
                                 <div className="col-span-2">ID</div>
                                 <div className="col-span-3">Title</div>
                                 <div className="col-span-2">Domain</div>
@@ -842,11 +1000,11 @@ export default function AdminPage() {
                                             </div>
 
                                             {/* Desktop Items */}
-                                            <div className="hidden md:block col-span-2 font-mono text-xs">{ps.id.substring(0,8)}</div>
-                                            <div className="hidden md:block col-span-3 truncate font-medium" title={ps.title}>{ps.title}</div>
+                                            <div className="hidden md:block col-span-2 font-mono text-xs text-white">{ps.id.substring(0,8)}</div>
+                                            <div className="hidden md:block col-span-3 truncate font-medium text-white" title={ps.title}>{ps.title}</div>
                                             
                                             {/* Domain */}
-                                            <div className="col-span-2 truncate text-xs w-full">
+                                            <div className="col-span-2 truncate text-xs w-full text-white">
                                                 <span className="md:hidden uppercase text-[10px] text-slate-500 font-bold mr-2">Domain:</span>
                                                 {ps.domain}
                                             </div>
@@ -864,13 +1022,21 @@ export default function AdminPage() {
                                             </div>
 
                                             {/* Limit */}
-                                            <div className="col-span-2 text-xs text-slate-400">
+                                            <div className="col-span-2 text-xs text-white">
                                                 <span className="md:hidden uppercase text-[10px] text-slate-500 font-bold mr-2">Teams:</span>
-                                                <span className="text-white">{ps.currentCount || 0}</span> / {ps.maxLimit}
+                                                <span className="text-white">{ps._count?.teams || 0}</span> / {ps.maxLimit}
                                             </div>
 
                                             {/* Desktop Action */}
-                                            <div className="hidden md:block col-span-1 text-right">
+                                            <div className="hidden md:block col-span-1 text-right flex justify-end gap-1">
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="icon"
+                                                    className="h-8 w-8 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                                                    onClick={() => openEditPs(ps)}
+                                                >
+                                                    <Edit className="h-4 w-4" />
+                                                </Button>
                                                 <Button 
                                                     variant="ghost" 
                                                     size="icon"
@@ -889,6 +1055,255 @@ export default function AdminPage() {
                 </Card>
             </div>
         </div>
+
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+            <DialogContent className="bg-slate-900 border border-white/10 text-white sm:max-w-md">
+
+                <DialogHeader>
+                    <DialogTitle>Edit Team</DialogTitle>
+                    <DialogDescription className="text-slate-400">
+                        Update team details and member information.
+                    </DialogDescription>
+                </DialogHeader>
+                {editingTeam && (
+                    <form onSubmit={(e) => { e.preventDefault(); saveTeamUpdates(); }} className="space-y-4 max-h-[80vh] overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="space-y-2">
+                            <Label className="text-white">Team Name</Label>
+                            <Input 
+                                value={editingTeam.name || ""} 
+                                onChange={(e) => setEditingTeam({...editingTeam, name: e.target.value})}
+                                className="bg-black/20 border-white/10 text-white"
+                            />
+                        </div>
+                         <div className="space-y-2">
+                            <Label className="text-white">Leader Email</Label>
+                            <Input 
+                                value={editingTeam.leaderEmail || ""} 
+                                onChange={(e) => setEditingTeam({...editingTeam, leaderEmail: e.target.value})}
+                                className="bg-black/20 border-white/10 text-white"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-white">Leader Phone</Label>
+                            <Input 
+                                value={editingTeam.leaderPhone || ""} 
+                                onChange={(e) => setEditingTeam({...editingTeam, leaderPhone: e.target.value})}
+                                className="bg-black/20 border-white/10 text-white"
+                            />
+                        </div>
+                         <div className="space-y-2">
+                            <Label className="text-white">Problem Statement ID</Label>
+                            <Input 
+                                value={editingTeam.problemStatementId || ""} 
+                                onChange={(e) => setEditingTeam({...editingTeam, problemStatementId: e.target.value || null})}
+                                placeholder="None"
+                                className="bg-black/20 border-white/10 text-white"
+                            />
+                        </div>
+
+                         <div className="space-y-2 pt-4 border-t border-white/10">
+                            <div className="flex justify-between items-center">
+                                <Label className="text-white text-lg">Members</Label>
+                                 <Button 
+                                    type="button" 
+                                    size="sm" 
+                                    onClick={() => {
+                                        const newMember = { name: "New Member", email: "", phone: "", gender: "Male", course: "B.Tech", year: "1" };
+                                        setEditingTeam({...editingTeam, members: [...(editingTeam.members || []), newMember]});
+                                    }}
+                                    className="bg-green-600 hover:bg-green-700 text-white h-8 text-xs"
+                                >
+                                    <Plus className="w-3 h-3 mr-1" /> Add
+                                </Button>
+                            </div>
+                            
+                            <div className="space-y-4 mt-2">
+                                {editingTeam.members?.map((member, idx) => (
+                                    <div key={idx} className="bg-white/5 rounded p-3 space-y-3 relative group border border-white/5 hover:border-white/10">
+                                        <div className="absolute top-2 right-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button 
+                                                type="button" 
+                                                size="icon" 
+                                                variant="ghost" 
+                                                className="h-6 w-6 text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                                                onClick={() => {
+                                                    const newMembers = [...(editingTeam.members || [])];
+                                                    newMembers.splice(idx, 1);
+                                                    setEditingTeam({...editingTeam, members: newMembers});
+                                                }}
+                                            >
+                                                <Trash2 className="w-3 h-3" />
+                                            </Button>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <Label className="text-xs text-slate-400">Name</Label>
+                                                 <Input 
+                                                    value={typeof member === 'string' ? member : member.name || ""} 
+                                                    onChange={(e) => {
+                                                        const newMembers = [...(editingTeam.members || [])];
+                                                        if (typeof newMembers[idx] === 'string') {
+                                                            newMembers[idx] = { name: e.target.value } as any; 
+                                                        } else {
+                                                            newMembers[idx].name = e.target.value;
+                                                        }
+                                                        setEditingTeam({...editingTeam, members: newMembers});
+                                                    }}
+                                                    className="bg-black/20 border-white/10 text-white h-7 text-xs"
+                                                />
+                                            </div>
+                                             <div>
+                                                <Label className="text-xs text-slate-400">Email</Label>
+                                                 <Input 
+                                                    value={typeof member === 'string' ? "" : member.email || ""} 
+                                                    onChange={(e) => {
+                                                        const newMembers = [...(editingTeam.members || [])];
+                                                        if (typeof newMembers[idx] === 'string') newMembers[idx] = { name: newMembers[idx] } as any;
+                                                        newMembers[idx].email = e.target.value;
+                                                        setEditingTeam({...editingTeam, members: newMembers});
+                                                    }}
+                                                    className="bg-black/20 border-white/10 text-white h-7 text-xs"
+                                                />
+                                            </div>
+                                             <div>
+                                                <Label className="text-xs text-slate-400">Phone</Label>
+                                                 <Input 
+                                                    value={typeof member === 'string' ? "" : member.phone || ""} 
+                                                    onChange={(e) => {
+                                                        const newMembers = [...(editingTeam.members || [])];
+                                                        if (typeof newMembers[idx] === 'string') newMembers[idx] = { name: newMembers[idx] } as any;
+                                                        newMembers[idx].phone = e.target.value;
+                                                        setEditingTeam({...editingTeam, members: newMembers});
+                                                    }}
+                                                    className="bg-black/20 border-white/10 text-white h-7 text-xs"
+                                                />
+                                            </div>
+                                             <div>
+                                                <Label className="text-xs text-slate-400">Gender</Label>
+                                                 <Input 
+                                                    value={typeof member === 'string' ? "" : member.gender || ""} 
+                                                    onChange={(e) => {
+                                                        const newMembers = [...(editingTeam.members || [])];
+                                                        if (typeof newMembers[idx] === 'string') newMembers[idx] = { name: newMembers[idx] } as any;
+                                                        newMembers[idx].gender = e.target.value;
+                                                        setEditingTeam({...editingTeam, members: newMembers});
+                                                    }}
+                                                    className="bg-black/20 border-white/10 text-white h-7 text-xs"
+                                                />
+                                            </div>
+                                             <div>
+                                                <Label className="text-xs text-slate-400">Course</Label>
+                                                 <Input 
+                                                    value={typeof member === 'string' ? "" : member.course || ""} 
+                                                    onChange={(e) => {
+                                                        const newMembers = [...(editingTeam.members || [])];
+                                                        if (typeof newMembers[idx] === 'string') newMembers[idx] = { name: newMembers[idx] } as any;
+                                                        newMembers[idx].course = e.target.value;
+                                                        setEditingTeam({...editingTeam, members: newMembers});
+                                                    }}
+                                                    className="bg-black/20 border-white/10 text-white h-7 text-xs"
+                                                />
+                                            </div>
+                                             <div>
+                                                <Label className="text-xs text-slate-400">Year</Label>
+                                                 <Input 
+                                                    value={typeof member === 'string' ? "" : member.year || ""} 
+                                                    onChange={(e) => {
+                                                        const newMembers = [...(editingTeam.members || [])];
+                                                        if (typeof newMembers[idx] === 'string') newMembers[idx] = { name: newMembers[idx] } as any;
+                                                        newMembers[idx].year = e.target.value;
+                                                        setEditingTeam({...editingTeam, members: newMembers});
+                                                    }}
+                                                    className="bg-black/20 border-white/10 text-white h-7 text-xs"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)} className="bg-transparent border-white/10 text-white hover:bg-white/10">
+                                Cancel
+                            </Button>
+                            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
+                                Save Changes
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                )}
+            </DialogContent>
+        </Dialog>
+
+        <Dialog open={editPsOpen} onOpenChange={setEditPsOpen}>
+            <DialogContent className="bg-slate-900 border border-white/10 text-white sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Edit Problem Statement</DialogTitle>
+                     <DialogDescription className="text-slate-400">
+                        Update details for {editingPs?.id}
+                    </DialogDescription>
+                </DialogHeader>
+                {editingPs && (
+                     <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label className="text-xs text-slate-400">Title</Label>
+                            <Input 
+                                value={editingPs.title} 
+                                onChange={(e) => setEditingPs({...editingPs, title: e.target.value})} 
+                                className="bg-black/20 border-white/10 text-white" 
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-xs text-slate-400">Domain</Label>
+                            <Input 
+                                value={editingPs.domain} 
+                                onChange={(e) => setEditingPs({...editingPs, domain: e.target.value})} 
+                                className="bg-black/20 border-white/10 text-white" 
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label className="text-xs text-slate-400">Category</Label>
+                                <select 
+                                    value={editingPs.category} 
+                                    onChange={(e) => setEditingPs({...editingPs, category: e.target.value})} 
+                                    className="w-full h-10 rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-purple-500 appearance-none"
+                                >
+                                    <option value="Software" className="bg-slate-900">Software</option>
+                                    <option value="Hardware" className="bg-slate-900">Hardware</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-xs text-slate-400">Max Teams</Label>
+                                <Input 
+                                    type="number" 
+                                    value={editingPs.maxLimit} 
+                                    onChange={(e) => setEditingPs({...editingPs, maxLimit: Number(e.target.value)})} 
+                                    className="bg-black/20 border-white/10 text-white" 
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-xs text-slate-400">Description</Label>
+                            <textarea
+                                value={editingPs.description} 
+                                onChange={(e) => setEditingPs({...editingPs, description: e.target.value})} 
+                                className="flex min-h-[100px] w-full rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder:text-slate-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-purple-500"
+                            />
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setEditPsOpen(false)} className="bg-transparent border-white/10 text-white hover:bg-white/10">
+                                Cancel
+                            </Button>
+                            <Button onClick={updatePs} className="bg-purple-600 hover:bg-purple-700 text-white">
+                                Save Updates
+                            </Button>
+                        </DialogFooter>
+                     </div>
+                )}
+            </DialogContent>
+        </Dialog>
     </div>
   );
 }

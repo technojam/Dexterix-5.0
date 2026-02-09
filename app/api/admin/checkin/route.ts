@@ -59,7 +59,7 @@ export async function PATCH(req: Request) {
         await cosmosService.updateTeam(team);
         
         return NextResponse.json({ success: true, team });
-    } catch (e) {
+    } catch {
         return NextResponse.json({ error: "Update failed" }, { status: 500 });
     }
 }

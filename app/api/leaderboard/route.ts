@@ -13,10 +13,12 @@ export async function GET() {
         
         // 2. Fetch all problems (for JOIN simulation)
         const { resources: problems } = await problemsContainer.items.readAll().fetchAll();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const problemsMap = new Map(problems.map((p: any) => [p.id, p.title]));
 
         // 3. Map and Sort
         const leaderboard = teams
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .map((t: any) => ({
                 id: t.id, // This is the UUID
                 teamId: t.id, // Explicit teamId field asked by user
@@ -26,6 +28,7 @@ export async function GET() {
                     : "N/A",
                 score: t.score || 0,
             }))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .sort((a: any, b: any) => b.score - a.score);
 
         return NextResponse.json(leaderboard);

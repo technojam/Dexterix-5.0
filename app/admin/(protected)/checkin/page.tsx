@@ -3,22 +3,36 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { StarsBackground } from "@/components/ui/stars-bg";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Loader2, Search, CheckCircle2, Circle, User, Users, LogOut, LayoutDashboard, Armchair, X } from "lucide-react";
+import { Loader2, Search, CheckCircle2, Circle, User, LogOut, LayoutDashboard, Armchair } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
 
+interface Team {
+  id: string;
+  name: string;
+  leaderName?: string;
+  leaderEmail?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  members?: (string | { name: string; [key: string]: any })[];
+  college?: string;
+  year?: string;
+  checkedIn?: boolean;
+  tableNumber?: string | number;
+}
+
+
 export default function CheckInPage() {
-  const [teams, setTeams] = useState<any[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [role, setRole] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [totalTables, setTotalTables] = useState(100);
   
   // Dialog State
-  const [selectedTeam, setSelectedTeam] = useState<any>(null);
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
 
@@ -34,7 +48,7 @@ export default function CheckInPage() {
           const res = await fetch("/api/settings");
           const data = await res.json();
           if (data.totalTables) setTotalTables(data.totalTables);
-      } catch (e) {
+      } catch {
           console.error("Failed to load settings");
       }
   };
@@ -54,14 +68,14 @@ export default function CheckInPage() {
               }
               toast.error("Failed to load teams");
           }
-      } catch (error) {
+      } catch {
           toast.error("Network error");
       } finally {
           setLoading(false);
       }
   };
 
-  const handleCheckInClick = (team: any) => {
+  const handleCheckInClick = (team: Team) => {
       if (team.checkedIn) {
           // If already checked in, we are cancelling/undoing
           if (confirm(`Mark ${team.name} as NOT Arrived? This will free up Table ${team.tableNumber}.`)) {
@@ -102,7 +116,7 @@ export default function CheckInPage() {
       }
   };
 
-  const performCheckIn = async (team: any, status: boolean, tableNumber: number | null) => {
+  const performCheckIn = async (team: Team, status: boolean, tableNumber: number | null) => {
       setProcessing(team.id);
       
       try {
@@ -113,7 +127,7 @@ export default function CheckInPage() {
           });
           
           if (res.ok) {
-              const updatedTeam = await res.json(); // Get returned team to ensure sync
+              await res.json(); // Get returned team to ensure sync
               
               setTeams(prev => prev.map(t => {
                    if (t.id === team.id) {
@@ -130,7 +144,7 @@ export default function CheckInPage() {
           } else {
               toast.error("Update failed");
           }
-      } catch (e) {
+      } catch {
           toast.error("Error updating status");
       } finally {
           setProcessing(null);
@@ -140,7 +154,7 @@ export default function CheckInPage() {
   const logout = async () => {
     try {
         await logoutAction();
-    } catch (e) {
+    } catch {
         toast.error("Logout failed");
     }
   };
@@ -154,7 +168,7 @@ export default function CheckInPage() {
 
   return (
     <div className="relative min-h-screen w-full bg-[#000512] text-white font-lora">
-         <StarsBackground starDensity={0.0005} minTwinkleSpeed={2} className="absolute inset-0 z-0 opacity-40" />
+         {/* Removing StarsBackground due to performance issues on large lists */}
          
          <div className="relative z-10 container mx-auto pt-32 pb-12 px-4 max-w-4xl">
              <div className="flex justify-between items-center mb-8">
@@ -200,7 +214,8 @@ export default function CheckInPage() {
                 <div className="space-y-4">
                     {filteredTeams.map((team) => (
                         <Card key={team.id} className={`bg-white/5 border transition-all ${team.checkedIn ? 'border-green-500/50 bg-green-900/10' : 'border-white/10'}`}>
-                            <CardContent className="p-6">
+                            {/* Simplified Card Content for performance */}
+                            <div className="p-6">
                                 <div className="flex flex-col md:flex-row justify-between gap-6">
                                     <div className="flex-1 space-y-3">
                                         <div className="flex items-center gap-3">
@@ -218,12 +233,21 @@ export default function CheckInPage() {
                                             </div>
                                             
                                             {team.members && team.members.length > 0 ? (
-                                                team.members.map((member: string, idx: number) => (
-                                                    <div key={idx} className="flex items-center gap-2 text-sm text-slate-300">
-                                                        <User className="h-3 w-3 opacity-50" /> 
-                                                        <span>{member}</span>
-                                                    </div>
-                                                ))
+                                                team.members
+                                                    .filter(member => {
+                                                        const name = typeof member === 'string' ? member : member.name;
+                                                        // Filter out leader if they appear in members list
+                                                        return name.toLowerCase().trim() !== (team.leaderName || "").toLowerCase().trim();
+                                                    })
+                                                    .map((member, idx) => {
+                                                        const name = typeof member === 'string' ? member : member.name;
+                                                        return (
+                                                            <div key={idx} className="flex items-center gap-2 text-sm text-slate-300">
+                                                                <User className="h-3 w-3 opacity-50" /> 
+                                                                <span>{name}</span>
+                                                            </div>
+                                                        );
+                                                })
                                             ) : (
                                                 <p className="text-xs text-slate-500 italic">No additional members listed</p>
                                             )}
@@ -272,7 +296,7 @@ export default function CheckInPage() {
                                         </Button>
                                     </div>
                                 </div>
-                            </CardContent>
+                            </div>
                         </Card>
                     ))}
                     {filteredTeams.length === 0 && (

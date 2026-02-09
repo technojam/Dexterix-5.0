@@ -20,7 +20,7 @@ export async function GET() {
         // Let's return all. Frontend can filter.
         
         return NextResponse.json(teams);
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: "Failed to fetch teams" }, { status: 500 });
     }
 }

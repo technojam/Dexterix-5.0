@@ -1,12 +1,24 @@
 import { CosmosClient, Container, Database } from "@azure/cosmos";
 import "server-only";
 
+export interface IMember {
+  name: string;
+  email: string;
+  phone: string;
+  gender: string;
+  course: string;
+  year: string;
+  college: string;
+  isLeader?: boolean;
+}
+
 export interface ITeam {
   id: string;
   name: string;
   leaderName: string;
   leaderEmail: string;
-  members?: string[]; // Array of member names
+  password?: string; // Optional for simple auth if ever needed
+  members: IMember[]; 
   phone?: string;
   college?: string;
   year?: string;
@@ -22,6 +34,7 @@ export interface IGlobalSettings {
   registrationOpenTime: string | null; // ISO Date
   registrationCloseTime: string | null; // ISO Date
   totalTables?: number; // Total assignable tables
+  volunteersCanEditTeams?: boolean;
   showHardware: boolean;
   showSoftware: boolean;
   leaderboardColumns?: {

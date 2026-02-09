@@ -28,11 +28,12 @@ export async function POST(req: Request) {
     // Enrich with problem data if needed
     if (team.problemStatementId) {
         const ps = await cosmosService.getProblemStatement(team.problemStatementId);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (team as any).problemStatement = ps;
     }
 
     return NextResponse.json({ team });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

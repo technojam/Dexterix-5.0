@@ -14,7 +14,7 @@ export interface SmoothCursorProps {
     damping: number;
     stiffness: number;
     mass: number;
-    restDelta: number;
+    restDelta?: number;
   };
 }
 
@@ -83,30 +83,26 @@ const DefaultCursorSVG: FC = () => {
 export function SmoothCursor({
   cursor = <DefaultCursorSVG />,
   springConfig = {
-    damping: 30,
-    stiffness: 2500,
-    mass: 0.1,
-    restDelta: 0.001,
+    damping: 35,
+    stiffness: 700, 
+    mass: 0.2, // significantly lighter for less input delay
   },
 }: SmoothCursorProps) {
-  const [isMoving, setIsMoving] = useState(false);
   const lastMousePos = useRef<Position>({ x: 0, y: 0 });
-  const velocity = useRef<Position>({ x: 0, y: 0 });
-  const lastUpdateTime = useRef(Date.now());
   const previousAngle = useRef(0);
   const accumulatedRotation = useRef(0);
+  const scaleResetTimer = useRef<NodeJS.Timeout>(null);
 
   const cursorX = useSpring(0, springConfig);
   const cursorY = useSpring(0, springConfig);
   const rotation = useSpring(0, {
-    ...springConfig,
     damping: 20,
     stiffness: 300,
+    mass: 0.5,
   });
   const scale = useSpring(1, {
-    ...springConfig,
-    stiffness: 500,
-    damping: 25,
+    stiffness: 400,
+    damping: 20,
   });
 
   const [isVisible, setIsVisible] = useState(false);
@@ -122,85 +118,67 @@ export function SmoothCursor({
 
     setIsVisible(true);
 
-    const updateVelocity = (currentPos: Position) => {
-      const currentTime = Date.now();
-      const deltaTime = currentTime - lastUpdateTime.current;
-
-      if (deltaTime > 0) {
-        velocity.current = {
-          x: (currentPos.x - lastMousePos.current.x) / deltaTime,
-          y: (currentPos.y - lastMousePos.current.y) / deltaTime,
-        };
-      }
-
-      lastUpdateTime.current = currentTime;
-      lastMousePos.current = currentPos;
-    };
-
     const smoothMouseMove = (e: MouseEvent) => {
       const currentPos = { x: e.clientX, y: e.clientY };
-      updateVelocity(currentPos);
-
-      const speed = Math.sqrt(
-        Math.pow(velocity.current.x, 2) + Math.pow(velocity.current.y, 2),
-      );
-
+      
+      // Update position immediately
       cursorX.set(currentPos.x);
       cursorY.set(currentPos.y);
 
-      if (speed > 0.1) {
-        const currentAngle =
-          Math.atan2(velocity.current.y, velocity.current.x) * (180 / Math.PI);
+      // Calculate velocity for rotation/scale
+      const deltaX = currentPos.x - lastMousePos.current.x;
+      const deltaY = currentPos.y - lastMousePos.current.y;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
+      if (distance > 1) {
+        const currentAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
         let angleDiff = currentAngle - previousAngle.current;
+        
+        // Normalize angle difference
         if (angleDiff > 180) angleDiff -= 360;
         if (angleDiff < -180) angleDiff += 360;
+        
         accumulatedRotation.current += angleDiff;
         rotation.set(accumulatedRotation.current);
         previousAngle.current = currentAngle;
 
-        scale.set(0.95);
-        setIsMoving(true);
+        // Dynamic scaling based on speed
+        scale.set(0.9);
 
-        const timeout = setTimeout(() => {
+        // Reset scale when stopped
+        if (scaleResetTimer.current) {
+          clearTimeout(scaleResetTimer.current);
+        }
+        
+        // Use a type assertion or allow NodeJS.Timeout
+        scaleResetTimer.current = setTimeout(() => {
           scale.set(1);
-          setIsMoving(false);
-        }, 150);
-
-        return () => clearTimeout(timeout);
+        }, 100);
       }
-    };
-
-    let rafId: number;
-    const throttledMouseMove = (e: MouseEvent) => {
-      if (rafId) return;
-
-      rafId = requestAnimationFrame(() => {
-        smoothMouseMove(e);
-        rafId = 0;
-      });
+      
+      lastMousePos.current = currentPos;
     };
 
     const style = document.createElement('style');
     style.innerHTML = `
-      * {
+      body, a, button, input, textarea, select {
         cursor: none !important;
       }
     `;
     style.id = 'smooth-cursor-style';
     document.head.appendChild(style);
 
-    document.body.style.cursor = "none";
-    window.addEventListener("mousemove", throttledMouseMove);
+    window.addEventListener("mousemove", smoothMouseMove);
 
     return () => {
-      window.removeEventListener("mousemove", throttledMouseMove);
-      document.body.style.cursor = "auto";
+      window.removeEventListener("mousemove", smoothMouseMove);
       const styleElement = document.getElementById('smooth-cursor-style');
       if (styleElement) {
         styleElement.remove();
       }
-      if (rafId) cancelAnimationFrame(rafId);
+      if (scaleResetTimer.current) {
+          clearTimeout(scaleResetTimer.current);
+      }
     };
   }, [cursorX, cursorY, rotation, scale]);
 
@@ -216,17 +194,13 @@ export function SmoothCursor({
         translateY: "-50%",
         rotate: rotation,
         scale: scale,
-        zIndex: 500,
+        zIndex: 9999, // Ensure it's on top
         pointerEvents: "none",
         willChange: "transform",
       }}
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
-      transition={{
-        type: "spring",
-        stiffness: 400,
-        damping: 30,
-      }}
+      exit={{ scale: 0 }}
     >
       {cursor}
     </motion.div>

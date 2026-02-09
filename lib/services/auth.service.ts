@@ -23,21 +23,15 @@ export class FirebaseAuthService implements IAuthService {
     const privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
     let isPlaceholder = !privateKey;
-    let reason = "";
 
     if (privateKey) {
         if (privateKey.toLowerCase().includes("private_key_here")) {
              isPlaceholder = true;
-             reason = "Contains 'private_key_here'";
         } else if (privateKey.includes("your-private-key")) {
              isPlaceholder = true;
-             reason = "Contains 'your-private-key'";
         } else if (privateKey.length < 100) {
              isPlaceholder = true;
-             reason = `Key too short (${privateKey.length} chars). First 20: ${privateKey.substring(0, 20)}...`;
         }
-    } else {
-        reason = "Key is undefined or empty";
     }
 
     if (projectId && clientEmail && privateKey && !isPlaceholder) {
@@ -61,7 +55,7 @@ export class FirebaseAuthService implements IAuthService {
              this.app = getApp();
           } catch{
               // minimal fallback
-          }`⚠️  FIREBASE_PRIVATE_KEY invalid: ${reason}`
+          }
         }
         
         if (this.app) {
@@ -98,7 +92,7 @@ export class FirebaseAuthService implements IAuthService {
     try {
       await this.ensureAuth().verifySessionCookie(sessionCookie, true);
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -106,7 +100,7 @@ export class FirebaseAuthService implements IAuthService {
   async getUserFromSession(sessionCookie: string): Promise<DecodedIdToken | null> {
       try {
           return await this.ensureAuth().verifySessionCookie(sessionCookie, true);
-      } catch (error) {
+      } catch {
           return null;
       }
   }

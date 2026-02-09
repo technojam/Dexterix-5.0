@@ -7,7 +7,7 @@ export async function GET() {
     try {
         const settings = await cosmosService.getGlobalSettings();
         return NextResponse.json(settings);
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });
     }
 }
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
         const body = await req.json();
         const updated = await cosmosService.updateGlobalSettings(body);
         return NextResponse.json(updated);
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: "Failed to update settings" }, { status: 500 });
     }
 }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { authService } from "@/lib/services/auth.service";
-import { cosmosService, ITeam } from "@/lib/services/cosmos.service";
+import { cosmosService } from "@/lib/services/cosmos.service";
 import { cookies } from "next/headers";
 
 async function verifyAuthAndGetRole() {
@@ -19,7 +19,7 @@ async function verifyAuthAndGetRole() {
     return null; // Volunteers cannot reset all
 }
 
-export async function POST(req: Request) {
+export async function POST() {
     const role = await verifyAuthAndGetRole();
     if (role !== "admin") {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

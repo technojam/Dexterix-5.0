@@ -62,11 +62,10 @@ export interface PageData {
 
 interface HubInterfaceProps {
   initialData: PageData;
-  teams: Team[]; // Passed from server or fetched separately? Passed is better if small.
   leaderboard: LeaderboardEntry[];
 }
 
-export default function HubInterface({ initialData, teams, leaderboard }: HubInterfaceProps) {
+export default function HubInterface({ initialData, leaderboard }: HubInterfaceProps) {
   const router = useRouter();
   
   // Selection State
@@ -116,8 +115,8 @@ export default function HubInterface({ initialData, teams, leaderboard }: HubInt
       toast.success("Team registered successfully!");
       setIsDialogOpen(false);
       router.refresh(); // Refresh Server Components
-    } catch (error: any) {
-      toast.error(error.message || "Failed to register");
+    } catch (error) {
+      toast.error((error as Error).message || "Failed to register");
     } finally {
       setFormLoading(false);
     }

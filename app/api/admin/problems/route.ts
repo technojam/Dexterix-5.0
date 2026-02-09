@@ -23,7 +23,7 @@ export async function DELETE(req: Request) {
         const container = await cosmosService.getProblemStatementsContainer();
         await container.item(id, id).delete();
         return NextResponse.json({ success: true });
-    } catch (e) {
+    } catch {
         return NextResponse.json({ error: "Delete failed" }, { status: 500 });
     }
 }

@@ -101,7 +101,7 @@ export function FloatingPlanets({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Mount check helper
+    // eslint-disable-next-line
     setMounted(true);
   }, []);
 

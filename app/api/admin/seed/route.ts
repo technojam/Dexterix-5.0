@@ -38,6 +38,7 @@ export async function POST(req: Request) {
         console.warn("Audit Upload Failed:", e);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let records: any[] = [];
 
     // 2. Parse File (CSV or Excel)
@@ -54,6 +55,7 @@ export async function POST(req: Request) {
                      headers[colNumber] = cell.value?.toString() || "";
                  });
              } else {
+                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                  const rowData: any = {};
                  row.eachCell((cell, colNumber) => {
                      const header = headers[colNumber];
@@ -61,7 +63,9 @@ export async function POST(req: Request) {
                          let val = cell.value;
                          // Handle rich text / formulas
                          if (val && typeof val === "object") {
+                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
                              if ("result" in val) val = (val as any).result;
+                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
                              else if ("text" in val) val = (val as any).text;
                          }
                          rowData[header] = val;
@@ -86,6 +90,7 @@ export async function POST(req: Request) {
     let lastTeamId = "";
 
     // 1. Group rows into Teams
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     for (const record of records as any[]) {
         // Keys: "TeamId", "Team Name", "Team Leader", "Members", "Email", "Phone Number", "College/University", "Year"
         
@@ -118,7 +123,7 @@ export async function POST(req: Request) {
         if (!team.college && (record["College/University"] || record["College"])) team.college = record["College/University"] || record["College"];
         if (!team.year && record["Year"]) team.year = record["Year"];
 
-        const memberName = record["Members"];
+        const memberName = record["Name"] || record["Members"];
         const leaderCol = record["Team Leader"] || record["Team Leader Name"];
         const email = record["Email"];
         const phone = record["Phone Number"];
@@ -127,25 +132,32 @@ export async function POST(req: Request) {
             // Check if this row represents the leader
             const isLeader = leaderCol && memberName.trim().toLowerCase() === leaderCol.trim().toLowerCase();
 
+            const memberObj = {
+                name: memberName,
+                email: email || "",
+                phone: phone || "",
+                gender: record["Gender"] || "",
+                course: record["Course"] || "",
+                year: record["Year"] || "",
+                college: record["College/University"] || record["College"] || "",
+                isLeader: isLeader
+            };
+
             if (isLeader) {
                 team.leaderName = memberName;
                 team.leaderEmail = email;
                 team.phone = phone;
-            } else {
-                // Determine member details string
-                let details = memberName;
-                const extras = [];
-                if (email) extras.push(email);
-                if (phone) extras.push(phone);
-                
-                if (extras.length > 0) {
-                    details += ` (${extras.join(", ")})`;
-                }
-                
-                // Avoid redundant entries
-                if (team.members && !team.members.includes(details)) {
-                    team.members.push(details);
-                }
+            }
+
+            // Add to members array (avoid duplicates based on email or name)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const exists = team.members.find((m: any) => 
+                (m.email && m.email === email && email) || m.name === memberName
+            );
+
+            if (!exists) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (team.members as any).push(memberObj);
             }
         }
     }

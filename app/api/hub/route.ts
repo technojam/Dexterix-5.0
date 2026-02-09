@@ -48,7 +48,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, team });
     } 
     
-    // Case 2: Admin Creating a Problem (Has title)
+    // Case 2: Admin Creating/Updating a Problem (Has title)
     else if (body.title && body.description) {
       const { id, title, description, maxLimit, category, domain } = body;
       
@@ -61,7 +61,10 @@ export async function POST(req: Request) {
           maxLimit: Number(maxLimit) || 10
       }
       
-      await cosmosService.createProblemStatement(newPs);
+      // Upsert to support editing
+      const container = await cosmosService.getProblemStatementsContainer();
+      await container.items.upsert(newPs);
+
       return NextResponse.json(newPs);
     }
 
@@ -73,14 +76,17 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
     try {
+        const { searchParams } = new URL(req.url);
+        const isAdmin = searchParams.get('admin') === 'true'; // Allow admin override
+
         const settings = await cosmosService.getGlobalSettings();
         const problems = await cosmosService.getAllProblemStatements();
         const teamsContainer = await cosmosService.getTeamsContainer();
         
-        // Filter based on settings
-        const filteredProblems = problems.filter(ps => {
+        // Filter based on settings (unless admin)
+        const visibleProblems = isAdmin ? problems : problems.filter(ps => {
             if (ps.category === "Hardware" && !settings.showHardware) return false;
             // Treat unknown categories as Software or always show? Lets assume Software if not hardware.
             if ((ps.category === "Software" || !ps.category) && !settings.showSoftware) return false;
@@ -88,7 +94,7 @@ export async function GET() {
         });
 
         // Enrich with counts
-        const enrichedProblems = await Promise.all(filteredProblems.map(async (ps) => {
+        const enrichedProblems = await Promise.all(visibleProblems.map(async (ps) => {
             const { resources } = await teamsContainer.items
                 .query({
                     query: "SELECT VALUE COUNT(1) FROM c WHERE c.problemStatementId = @id",

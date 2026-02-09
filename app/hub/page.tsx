@@ -26,7 +26,7 @@ async function getHubData() {
                 .query(`SELECT VALUE COUNT(1) FROM c WHERE c.problemStatementId = "${ps.id}"`)
                 .fetchAll();
              count = resources[0] || 0;
-        } catch (e) {
+        } catch {
             console.error(`Failed to count teams for ps ${ps.id}`);
         }
         
@@ -57,11 +57,6 @@ async function getHubData() {
     };
 }
 
-async function getTeamsData() {
-    // Returning empty as UI doesn't use the full list, saving performance.
-    return [];
-}
-
 async function getLeaderboardData() {
     try {
         const teamsContainer = await cosmosService.getTeamsContainer();
@@ -89,9 +84,8 @@ async function getLeaderboardData() {
 }
 
 export default async function HubPage() {
-    const [pageData, teams, leaderboard] = await Promise.all([
+    const [pageData, leaderboard] = await Promise.all([
         getHubData(),
-        getTeamsData(),
         getLeaderboardData()
     ]);
 
@@ -111,7 +105,6 @@ export default async function HubPage() {
     return (
         <HubInterface 
             initialData={safeData} 
-            teams={teams}
             leaderboard={leaderboard}
         />
     );

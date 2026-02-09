@@ -19,7 +19,7 @@ export class AzureStorageService implements IStorageService {
     if (connectionString && !connectionString.includes("<your_account_name>") && !connectionString.includes("...")) {
       try {
         this.blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-      } catch (e) {
+      } catch {
         console.warn("Invalid Azure Storage Connection String.");
       }
     } else {

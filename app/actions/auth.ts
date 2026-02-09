@@ -7,7 +7,7 @@ import { getAdminApp } from "@/lib/firebase-admin";
 import { getAuth as getAdminAuth } from "firebase-admin/auth";
 import { redirect } from "next/navigation";
 
-export async function loginAction(prevState: any, formData: FormData) {
+export async function loginAction(prevState: any, formData: FormData) { // eslint-disable-line @typescript-eslint/no-explicit-any
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
@@ -45,13 +45,24 @@ export async function loginAction(prevState: any, formData: FormData) {
       sameSite: "lax",
     });
 
-    // 5. Success
-  } catch (error: any) {
+    // 5. Role-based Redirect
+    const volunteerEmails = (process.env.VOLUNTEER_EMAILS || "").split(",").map(e => e.trim().toLowerCase());
+    const userEmail = user.email?.toLowerCase() || "";
+
+    if (volunteerEmails.includes(userEmail)) {
+        redirect("/admin/checkin");
+    } else {
+        redirect("/admin");
+    }
+
+  } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
     console.error("Login error:", error);
+    // If redirect() throws (which it serves as a way to navigate), let it pass
+    if (error.message === "NEXT_REDIRECT") {
+        throw error;
+    }
     return { error: "Invalid credentials or authentication failed." };
   }
-
-  redirect("/admin");
 }
 
 export async function logoutAction() {
