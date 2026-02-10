@@ -1,7 +1,7 @@
 "use client";
 
 import { StarsBackground } from "@/components/ui/stars-bg";
-import Image from "next/image";
+// import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";

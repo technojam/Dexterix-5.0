@@ -86,11 +86,13 @@ const LAYOUTS: PlanetData[][] = [
 interface FloatingPlanetsProps {
   layoutId?: 1 | 2 | 3 | 4 | 5 | 6;
   noOfPlanets?: number;
+  priority?: boolean;
 }
 
 export function FloatingPlanets({
   layoutId = 1,
   noOfPlanets,
+  priority = false, // Default false
 }: FloatingPlanetsProps) {
   // Use layoutId - 1 because arrays are 0-indexed
   const fullLayout = LAYOUTS[layoutId - 1] || LAYOUTS[0];
@@ -101,7 +103,7 @@ export function FloatingPlanets({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Mount check helper
+    // eslint-disable-next-line
     setMounted(true);
   }, []);
 
@@ -146,6 +148,7 @@ export function FloatingPlanets({
             alt="planet"
             width={planet.size}
             height={planet.size}
+            priority={priority}
             className="w-full h-full object-contain opacity-60 hover:opacity-100 transition-opacity duration-500"
           />
         </motion.div>

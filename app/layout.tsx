@@ -3,7 +3,6 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/custom/theme.provider";
 import { SiteNavbar } from "@/components/custom/site/navbar";
-import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import SiteFooter from "@/components/custom/site/footer";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -46,7 +45,7 @@ const fontLora = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Dextrix 5.0 by Team TechnoJam",
+  title: "Dexterix 5.0 by Team TechnoJam",
   description: "Finding the next gen DEXTERS",
 };
 
@@ -67,7 +66,6 @@ export default function RootLayout({
           <div className="flex bg-[#05193B] flex-col min-h-screen items-center justify-center overflow-x-hidden">
             <SiteNavbar />
             {children}
-            <SmoothCursor />
             <SiteFooter />
             <Toaster />
           </div>

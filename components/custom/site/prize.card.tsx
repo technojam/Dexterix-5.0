@@ -74,9 +74,7 @@ const rankOrdinal = ["", "Winner", "Runner up", "Second Runner up", "All Best Gi
 const PrizeCard = ({
   rank,
   image,
-  prizeName,
   prizeValue,
-  winnerName,
 }: PrizeCardProps) => {
   const styles = rankStyles[rank];
   const Icon = styles.icon;

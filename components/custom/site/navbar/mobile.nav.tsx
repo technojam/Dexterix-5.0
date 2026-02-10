@@ -12,6 +12,7 @@ export function MobileNav() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -28,13 +29,14 @@ export function MobileNav() {
   }, [isOpen]);
 
   const navLinks = [
-    { href: "#hero", label: "Home" },
-    { href: "#about", label: "About" },
-    { href: "#schedule", label: "Schedule" },
-    { href: "#events", label: "Events" },
-    { href: "#sponsor", label: "Sponsor" },
-    { href: "#prize", label: "Prize" },
-    { href: "#contact", label: "Contact" },
+    { href: "/", label: "Home" },
+    { href: "/#about", label: "About" },
+    { href: "/#schedule", label: "Schedule" },
+    { href: "/#events", label: "Events" },
+    { href: "/#sponsor", label: "Sponsor" },
+    { href: "/#prize", label: "Prize" },
+    { href: "/#contact", label: "Contact" },
+    { href: "/hub", label: "Hackathon Hub" },
   ];
 
   return (

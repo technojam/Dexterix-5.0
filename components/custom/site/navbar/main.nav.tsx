@@ -22,7 +22,7 @@ export function MainNavbar() {
       </Link>
       <nav className="hidden md:flex items-center gap-8 text-lg font-bold font-lora">
         <Link
-          href={"#hero"}
+          href={"/"}
           draggable={false}
           className={cn(
             "transition-colors hover:text-secondary/80 text-secondary",
@@ -32,7 +32,7 @@ export function MainNavbar() {
         </Link>
 
         <Link
-          href={"#about"}
+          href={"/#about"}
           draggable={false}
           className={cn(
             "transition-colors hover:text-secondary/80 text-secondary",
@@ -42,7 +42,7 @@ export function MainNavbar() {
         </Link>
 
         <Link
-          href={"#schedule"}
+          href={"/#schedule"}
           draggable={false}
           className={cn(
             "transition-colors hover:text-secondary/80 text-secondary",
@@ -52,7 +52,7 @@ export function MainNavbar() {
         </Link>
 
         <Link
-          href={"#events"}
+          href={"/#events"}
           draggable={false}
           className={cn(
             "transition-colors hover:text-secondary/80 text-secondary",
@@ -62,7 +62,7 @@ export function MainNavbar() {
         </Link>
 
         <Link
-          href={"#sponsor"}
+          href={"/#sponsor"}
           draggable={false}
           className={cn(
             "transition-colors hover:text-secondary/80 text-secondary",
@@ -72,7 +72,7 @@ export function MainNavbar() {
         </Link>
 
         <Link
-          href={"#prize"}
+          href={"/#prize"}
           draggable={false}
           className={cn(
             "transition-colors hover:text-secondary/80 text-secondary",
@@ -82,13 +82,22 @@ export function MainNavbar() {
         </Link>
 
         <Link
-          href={"#contact"}
+          href={"/#contact"}
           draggable={false}
           className={cn(
             "transition-colors hover:text-secondary/80 text-secondary",
           )}
         >
           Contact
+        </Link>
+        <Link
+          href={"/hub"}
+          draggable={false}
+          className={cn(
+            "transition-colors hover:text-secondary/80 text-secondary",
+          )}
+        >
+          Hackathon Hub
         </Link>
       </nav>
     </div>

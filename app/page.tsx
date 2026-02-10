@@ -1,10 +1,14 @@
-import AboutSec from "@/components/custom/site/sections/about.sec";
-import ContactSec from "@/components/custom/site/sections/contact.sec";
-import EventsSec from "@/components/custom/site/sections/events.sec";
 import HeroSec from "@/components/custom/site/sections/hero.sec";
-import PrizeSec from "@/components/custom/site/sections/prize.sec";
-import ScheduleSec from "@/components/custom/site/sections/schedule.sec";
-import SponsorSec from "@/components/custom/site/sections/sponsor.sec";
+import dynamic from "next/dynamic";
+
+const AboutSec = dynamic(() => import("@/components/custom/site/sections/about.sec"), {
+  loading: () => <div className="h-[50vh] w-full bg-transparent" />,
+});
+const ContactSec = dynamic(() => import("@/components/custom/site/sections/contact.sec"));
+const EventsSec = dynamic(() => import("@/components/custom/site/sections/events.sec"));
+const PrizeSec = dynamic(() => import("@/components/custom/site/sections/prize.sec"));
+const ScheduleSec = dynamic(() => import("@/components/custom/site/sections/schedule.sec"));
+const SponsorSec = dynamic(() => import("@/components/custom/site/sections/sponsor.sec"));
 
 export default function Home() {
   return (

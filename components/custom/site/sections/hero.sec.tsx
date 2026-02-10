@@ -9,11 +9,11 @@ export default function HeroSec() {
   return (
     <div className="relative flex h-full w-full overflow-hidden">
       <StarsBackground
-        starDensity={0.0015}
+        starDensity={0.0008}
         minTwinkleSpeed={1}
         className="flex z-300"
       />
-      <FloatingPlanets layoutId={1} />
+      <FloatingPlanets layoutId={1} priority={true} />
       {/* <Image
         src={"/img/bg-stars.webp"}
         alt="bg"
@@ -68,6 +68,7 @@ export default function HeroSec() {
             <h1 className="flex text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl max-w-2xl font-bold text-secondary text-center font-lora italic px-4 sm:px-6 md:px-8 drop-shadow-lg">
               FINDING THE NEXT GEN DEXTERS
             </h1>
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
             <Link href={"https://techxpo.technojam.in/events/b0848c3f-9cd8-444d-a0a7-70cc22700512"} target="_blank" rel="noopener noreferrer">
             <ShimmerButton background="#EE2D78" className="h-10 w-50 shadow-xl">
               <span className="text-center font-lora font-semibold text-sm leading-none tracking-tight whitespace-pre-wrap text-white lg:text-lg">
@@ -75,6 +76,14 @@ export default function HeroSec() {
               </span>
             </ShimmerButton>
             </Link>
+            <Link href={"/hub"}>
+              <ShimmerButton background="#4F46E5" className="h-10 w-50 shadow-xl">
+                <span className="text-center font-lora font-semibold text-sm leading-none tracking-tight whitespace-pre-wrap text-white lg:text-lg">
+                  Hackathon Hub
+                </span>
+              </ShimmerButton>
+            </Link>
+            </div>
             <p className="hidden md:flex text-lg mt-10 font-lora max-w-2xl text-secondary text-center items-center gap-2 justify-center">
               Brought to you by{" "}
               <Highlighter action="underline" color="#ffffff">
