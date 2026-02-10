@@ -82,6 +82,8 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
   // Selection State
   const [selectedPs, setSelectedPs] = useState<ProblemStatement | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDescDialogOpen, setIsDescDialogOpen] = useState(false);
+  const [descPs, setDescPs] = useState<ProblemStatement | null>(null);
   const [formLoading, setFormLoading] = useState(false);
   const [unregisteredTeams, setUnregisteredTeams] = useState<UnregisteredTeam[]>(initialData.unregisteredTeams || []);
   const [isLoadingTeams, setIsLoadingTeams] = useState(false);
@@ -136,6 +138,11 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
     setCustomTitle("");
     setCustomDescription("");
     setIsDialogOpen(true);
+  };
+
+  const handleReadMore = (ps: ProblemStatement) => {
+    setDescPs(ps);
+    setIsDescDialogOpen(true);
   };
 
   const handleSubmit = async () => {
@@ -238,6 +245,16 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
                         </CardHeader>
                         <CardContent className="flex-grow">
                             <p className="text-sm text-gray-300 whitespace-pre-wrap line-clamp-[10] font-sans leading-relaxed">{ps.description}</p>
+                            {ps.description.length > 280 && (
+                                <Button
+                                  type="button"
+                                  variant="link"
+                                  className="px-0 text-blue-300 hover:text-blue-200"
+                                  onClick={() => handleReadMore(ps)}
+                                >
+                                  Read more
+                                </Button>
+                            )}
                         </CardContent>
                         <CardFooter>
                             <Button 
@@ -318,6 +335,20 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
             </TabsContent>
         </Tabs>
       </div>
+
+      <Dialog open={isDescDialogOpen} onOpenChange={setIsDescDialogOpen}>
+        <DialogContent className="sm:max-w-[700px] bg-[#0a1120] border-white/10 text-white font-lora">
+          <DialogHeader>
+            <DialogTitle className="text-white">{descPs?.title}</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              {descPs?.id} · {descPs?.category} · {descPs?._count?.teams || 0} / {descPs?.maxLimit}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[60vh] overflow-auto whitespace-pre-wrap text-sm text-gray-200 leading-relaxed">
+            {descPs?.description}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[425px] bg-[#0a1120] border-white/10 text-white font-lora">
