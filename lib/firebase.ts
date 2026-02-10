@@ -11,7 +11,7 @@ const firebaseConfig = {
 };
 
 // Debug helper (runs only in browser)
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
     console.log("Firebase Config Check:", {
         apiKey: firebaseConfig.apiKey ? "Present (" + firebaseConfig.apiKey.substring(0, 5) + "...)" : "MISSING",
         authDomain: firebaseConfig.authDomain ? firebaseConfig.authDomain : "MISSING",

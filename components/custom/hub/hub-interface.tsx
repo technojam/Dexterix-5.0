@@ -94,13 +94,13 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
             const res = await fetch('/api/teams/unregistered');
             if (res.ok) {
                 const data = await res.json();
-                console.log("Fetched teams raw:", data);
+                // console.log("Fetched teams raw:", data);
                 // Filter out teams that already have a problem statement
                 // Also ensure they have an ID to select
                 const validTeams = data.filter((t: any) => 
                     (!t.problemStatementId || t.problemStatementId === "") && t.id
                 );
-                console.log("Valid unregistered teams:", validTeams);
+                // console.log("Valid unregistered teams:", validTeams);
                 setUnregisteredTeams(validTeams);
             }
         } catch (error) {

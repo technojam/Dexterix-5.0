@@ -108,6 +108,9 @@ export class AzureCosmosService implements ICosmosService {
         console.warn("Failed to initialize CosmosClient with provided config:", e);
       }
     } else {
+      if (endpoint && !endpoint.startsWith("https://")) {
+         throw new Error("SECURITY ALERT: Cosmos DB Endpoint must use HTTPS to prevent plain-text transmission.");
+      }
       console.warn("Cosmos DB Credentials missing or placeholders used. DB Service disabled.");
     }
   }

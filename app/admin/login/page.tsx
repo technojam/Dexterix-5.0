@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const initialState = {
   error: "",
@@ -35,12 +36,16 @@ function SubmitButton() {
 
 export default function AdminLoginPage() {
   const [state, formAction] = useActionState(loginAction, initialState);
+  const router = useRouter();
 
   useEffect(() => {
-    if (state?.error) {
+    if (state?.success && state.redirectUrl) {
+        toast.success("Logged in successfully");
+        router.push(state.redirectUrl);
+    } else if (state?.error) {
       toast.error(state.error);
     }
-  }, [state]);
+  }, [state, router]);
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#000512] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))] p-4 font-lora text-white">

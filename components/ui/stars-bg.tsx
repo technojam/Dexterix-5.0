@@ -107,8 +107,18 @@ export const StarsBackground: React.FC<StarBackgroundProps> = ({
     if (!ctx) return;
 
     let animationFrameId: number;
+    let lastTime = 0;
+    const fps = 24; // Lower FPS for background usage
+    const interval = 1000 / fps;
 
-    const render = () => {
+    const render = (currentTime: number) => {
+      animationFrameId = requestAnimationFrame(render);
+
+      const delta = currentTime - lastTime;
+      if (delta < interval) return;
+
+      lastTime = currentTime - (delta % interval);
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       stars.forEach((star) => {
         ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
@@ -120,11 +130,9 @@ export const StarsBackground: React.FC<StarBackgroundProps> = ({
             Math.abs(Math.sin((Date.now() * 0.001) / star.twinkleSpeed) * 0.5);
         }
       });
-
-      animationFrameId = requestAnimationFrame(render);
     };
 
-    render();
+    animationFrameId = requestAnimationFrame(render);
 
     return () => {
       cancelAnimationFrame(animationFrameId);

@@ -5,7 +5,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { cookies } from "next/headers";
 import { getAdminApp } from "@/lib/firebase-admin";
 import { getAuth as getAdminAuth } from "firebase-admin/auth";
-import { redirect } from "next/navigation";
+// import { redirect } from "next/navigation";
 
 export async function loginAction(prevState: any, formData: FormData) { // eslint-disable-line @typescript-eslint/no-explicit-any
   const email = formData.get("email") as string;
@@ -50,17 +50,13 @@ export async function loginAction(prevState: any, formData: FormData) { // eslin
     const userEmail = user.email?.toLowerCase() || "";
 
     if (volunteerEmails.includes(userEmail)) {
-        redirect("/admin/checkin");
+        return { success: true, redirectUrl: "/admin/checkin" };
     } else {
-        redirect("/admin");
+        return { success: true, redirectUrl: "/admin" };
     }
 
   } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
     console.error("Login error:", error);
-    // If redirect() throws (which it serves as a way to navigate), let it pass
-    if (error.message === "NEXT_REDIRECT") {
-        throw error;
-    }
     return { error: "Invalid credentials or authentication failed." };
   }
 }

@@ -9,11 +9,11 @@ export default function HeroSec() {
   return (
     <div className="relative flex h-full w-full overflow-hidden">
       <StarsBackground
-        starDensity={0.0015}
+        starDensity={0.0008}
         minTwinkleSpeed={1}
         className="flex z-300"
       />
-      <FloatingPlanets layoutId={1} />
+      <FloatingPlanets layoutId={1} priority={true} />
       {/* <Image
         src={"/img/bg-stars.webp"}
         alt="bg"
