@@ -31,14 +31,14 @@ export async function loginAction(prevState: any, formData: FormData) { // eslin
     }
     const adminAuth = getAdminAuth(adminApp);
     
-    // Set session expiration to 5 days
-    const expiresIn = 60 * 60 * 24 * 5 * 1000;
+    // Set session expiration to 1 hour
+    const expiresInMs = 60 * 60 * 1000;
     
-    const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
+    const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn: expiresInMs });
 
     // 4. Set Cookie
     (await cookies()).set("session", sessionCookie, {
-      maxAge: expiresIn,
+      maxAge: 60 * 60,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",

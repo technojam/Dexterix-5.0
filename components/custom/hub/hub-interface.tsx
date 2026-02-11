@@ -87,6 +87,7 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
   const [formLoading, setFormLoading] = useState(false);
   const [unregisteredTeams, setUnregisteredTeams] = useState<UnregisteredTeam[]>(initialData.unregisteredTeams || []);
   const [isLoadingTeams, setIsLoadingTeams] = useState(false);
+  const [selectionLocked, setSelectionLocked] = useState(false);
 
   useEffect(() => {
     // Fetch unregistered teams client-side to ensure freshness and reliability
@@ -125,6 +126,10 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
   const isOpenInnovation = selectedPs?.title.toLowerCase().includes("open innovation");
 
   const handleSelect = (ps: ProblemStatement) => {
+    if (selectionLocked) {
+      toast.error("This team has already selected a problem statement.");
+      return;
+    }
     if (!initialData?.config.canRegister) {
       toast.error("Registration is currently closed.");
       return;
@@ -175,6 +180,13 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
       if (!res.ok) throw new Error(json.error || "Failed to register");
 
       toast.success("Team registered successfully!");
+      setSelectionLocked(true);
+      setUnregisteredTeams((prev) => prev.filter((team) => team.id !== selectedTeamId));
+      setSelectedTeamId("");
+      setLeaderName("");
+      setLeaderEmail("");
+      setCustomTitle("");
+      setCustomDescription("");
       setIsDialogOpen(false);
       router.refresh(); // Refresh Server Components
     } catch (error) {
@@ -226,6 +238,7 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {initialData.problems.map((ps) => {
                     const isFull = (ps._count?.teams || 0) >= ps.maxLimit;
+                    const isDisabled = selectionLocked || !initialData.config.canRegister || isFull;
                     return (
                         <Card key={ps.id} className="flex flex-col h-full bg-secondary/20 border-white/10 backdrop-blur-md hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
                         <CardHeader>
@@ -259,11 +272,11 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
                         <CardFooter>
                             <Button 
                             className="w-full font-semibold font-lora" 
-                            disabled={!initialData.config.canRegister || isFull}
-                            variant={isFull ? "secondary" : "default"}
+                            disabled={isDisabled}
+                            variant={isDisabled ? "secondary" : "default"}
                             onClick={() => handleSelect(ps)}
                             >
-                            {isFull ? "Full" : "Select Problem"}
+                            {selectionLocked ? "Selection Locked" : isFull ? "Full" : "Select Problem"}
                             </Button>
                         </CardFooter>
                         </Card>

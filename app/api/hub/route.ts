@@ -36,6 +36,13 @@ export async function POST(req: Request) {
       // Update Team
       const team = await cosmosService.getTeam(teamId);
       if (!team) return NextResponse.json({ error: "Team not found" }, { status: 404 });
+
+      if (team.problemStatementId) {
+        return NextResponse.json(
+          { error: "Team has already selected a problem statement." },
+          { status: 409 }
+        );
+      }
       
       // Verify Leader Details
       const normalizedEmail = leaderEmail.trim().toLowerCase();
