@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -81,6 +81,8 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
   
   // Selection State
   const [selectedPs, setSelectedPs] = useState<ProblemStatement | null>(null);
+  const [selectedPsId, setSelectedPsId] = useState<string | null>(null);
+  const selectedPsIdRef = useRef<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDescDialogOpen, setIsDescDialogOpen] = useState(false);
   const [descPs, setDescPs] = useState<ProblemStatement | null>(null);
@@ -140,9 +142,20 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
       return;
     }
     setSelectedPs(ps);
+    setSelectedPsId(ps.id);
+    selectedPsIdRef.current = ps.id;
     setCustomTitle("");
     setCustomDescription("");
     setIsDialogOpen(true);
+  };
+
+  const handleDialogChange = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) {
+      setSelectedPs(null);
+      setSelectedPsId(null);
+      selectedPsIdRef.current = null;
+    }
   };
 
   const handleReadMore = (ps: ProblemStatement) => {
@@ -153,6 +166,13 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
   const handleSubmit = async () => {
     if (!selectedTeamId || !leaderEmail || !leaderName) {
       toast.error("Please fill in all team details");
+      return;
+    }
+
+    const psId = selectedPsIdRef.current || selectedPsId;
+
+    if (!psId) {
+      toast.error("Please select a problem statement.");
       return;
     }
 
@@ -167,7 +187,7 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          problemStatementId: selectedPs?.id,
+          problemStatementId: psId,
           teamId: selectedTeamId,
           leaderEmail,
           leaderName,
@@ -187,6 +207,8 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
       setLeaderEmail("");
       setCustomTitle("");
       setCustomDescription("");
+      setSelectedPsId(null);
+      selectedPsIdRef.current = null;
       setIsDialogOpen(false);
       router.refresh(); // Refresh Server Components
     } catch (error) {
@@ -363,7 +385,7 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
         <DialogContent className="sm:max-w-[425px] bg-[#0a1120] border-white/10 text-white font-lora">
           <DialogHeader>
             <DialogTitle>Confirm Selection</DialogTitle>
