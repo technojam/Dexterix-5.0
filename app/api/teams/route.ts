@@ -1,10 +1,22 @@
 import { NextResponse } from "next/server";
 import { cosmosService } from "@/lib/services/cosmos.service";
+import { cookies } from "next/headers";
+import { authService } from "@/lib/services/auth.service";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
     try {
+        const session = (await cookies()).get("session")?.value;
+        if (!session) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const user = await authService.getUserFromSession(session);
+        if (!user) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
         const teamsContainer = await cosmosService.getTeamsContainer();
         // Fetch teams that haven't selected a problem yet? 
         // Or all teams so admin/user can find themselves?

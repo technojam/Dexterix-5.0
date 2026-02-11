@@ -12,28 +12,6 @@ async function getHubData() {
     // Safety check just in case methods return null/undefined
     if (!settings || !problems) return { problems: [], config: { canRegister: false } };
 
-    // Fetch unregistered teams for dropdown
-    // Relaxed query to match API logic: Fetch mostly everything, filter in UI if needed, 
-    // but here we filter loose to pass smaller payload.
-    let unregisteredTeams: { id: string, teamId: string, name: string }[] = [];
-    try {
-        // Just get all teams that exist.
-        const { resources } = await teamsContainer.items
-            .query("SELECT * FROM c") 
-            .fetchAll();
-        
-        // Filter in memory for safety
-        unregisteredTeams = resources.filter((t: any) => 
-            !t.problemStatementId || t.problemStatementId === ""
-        ).map((t: any) => ({
-            id: t.id,
-            teamId: t.teamId || "Unknown ID", // Fallback if missing
-            name: t.name || "Unknown Team"
-        }));
-    } catch (e) {
-        console.error("Failed to fetch unregistered teams", e);
-    }
-
     const filteredProblems = problems.filter(ps => {
         if (ps.category === "Hardware" && !settings.showHardware) return false;
         if ((ps.category === "Software" || !ps.category) && !settings.showSoftware) return false;
@@ -76,7 +54,6 @@ async function getHubData() {
 
     return {
       problems: enrichedProblems,
-      unregisteredTeams,
       config: {
         canRegister: isRegistrationOpen,
         registrationOpenTime: settings.registrationOpenTime || null,
@@ -132,7 +109,6 @@ export default async function HubPage() {
             maxLimit: p.maxLimit,
             _count: { teams: p._count.teams || 0 }
         })),
-        unregisteredTeams: pageData.unregisteredTeams,
         config: pageData.config
     };
 
