@@ -26,6 +26,7 @@ export interface ProblemStatement {
   title: string;
   description: string;
   category: "Software" | "Hardware";
+  domain?: string;
   maxLimit: number;
   _count: {
     teams: number;
@@ -270,6 +271,11 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
                                     <Badge variant={ps.category === "Hardware" ? "destructive" : "default"} className={`${ps.category === "Software" ? "bg-blue-600 hover:bg-blue-700" : ""} font-lora`}>
                                         {ps.category}
                                     </Badge>
+                                    {ps.domain && (
+                                        <Badge variant="outline" className="font-lora text-xs">
+                                            {ps.domain}
+                                        </Badge>
+                                    )}
                                 </div>
                                 <div className="flex items-center text-xs text-white/90 bg-black/40 px-3 py-1 rounded-full border border-white/10 font-mono whitespace-nowrap">
                                     <Users className="h-3 w-3 mr-2" />
