@@ -106,6 +106,7 @@ export default async function HubPage() {
             title: p.title,
             description: p.description,
             category: (p.category as "Software" | "Hardware") || "Software",
+            domain: p.domain,
             maxLimit: p.maxLimit,
             _count: { teams: p._count.teams || 0 }
         })),
