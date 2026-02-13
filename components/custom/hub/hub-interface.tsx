@@ -265,24 +265,24 @@ export default function HubInterface({ initialData, leaderboard }: HubInterfaceP
                     return (
                         <Card key={ps.id} className="flex flex-col h-full bg-secondary/20 border-white/10 backdrop-blur-md hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
                         <CardHeader>
-                            <div className="flex justify-between items-start gap-2">
+                            <div className="flex justify-between items-start gap-2 mb-2">
                                 <div className="flex gap-2 items-center flex-wrap">
                                     <span className="text-xs font-mono font-bold bg-white/10 px-2 py-1 rounded-md text-white/80 border border-white/10 uppercase tracking-wider">{ps.id}</span>
                                     <Badge variant={ps.category === "Hardware" ? "destructive" : "default"} className={`${ps.category === "Software" ? "bg-blue-600 hover:bg-blue-700" : ""} font-lora`}>
                                         {ps.category}
                                     </Badge>
-                                    {ps.domain && (
-                                        <Badge variant="outline" className="font-lora text-xs">
-                                            {ps.domain}
-                                        </Badge>
-                                    )}
                                 </div>
                                 <div className="flex items-center text-xs text-white/90 bg-black/40 px-3 py-1 rounded-full border border-white/10 font-mono whitespace-nowrap">
                                     <Users className="h-3 w-3 mr-2" />
                                     {ps._count?.teams || 0} / {ps.maxLimit}
                                 </div>
                             </div>
-                            <CardTitle className="leading-tight mt-3 text-white font-lora text-xl">{ps.title}</CardTitle>
+                            {ps.domain && (
+                                <span className="text-xs font-mono font-bold bg-white/10 px-2 py-1 rounded-md text-white/80 border border-white/10 uppercase tracking-wider inline-block mb-2">
+                                    {ps.domain}
+                                </span>
+                            )}
+                            <CardTitle className="leading-tight text-white font-lora text-xl">{ps.title}</CardTitle>
                         </CardHeader>
                         <CardContent className="flex-grow">
                             <p className="text-sm text-gray-300 whitespace-pre-wrap line-clamp-[10] font-sans leading-relaxed">{ps.description}</p>
