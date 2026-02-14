@@ -115,21 +115,19 @@ export async function POST(req: Request) {
 
     try {
          const body = await req.json();
-         // Basic validation
-         if (!body.name) return NextResponse.json({ error: "Team Name is required" }, { status: 400 });
-
+         
          const teamId = body.id || uuidv4();
          
          const newTeam = {
              id: teamId,
-             name: body.name,
+             name: body.name || "",
              leaderName: body.leaderName || "",
              leaderEmail: body.leaderEmail || "",
              phone: body.phone || body.leaderPhone || "",
              members: body.members || [],
-             checkedIn: false,
+             checkedIn: body.checkedIn ?? false,
              problemStatementId: body.problemStatementId || null,
-             score: 0,
+             score: body.score ?? 0,
              college: body.college || "",
              year: body.year || ""
          };

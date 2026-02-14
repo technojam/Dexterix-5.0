@@ -16,8 +16,10 @@ export async function GET() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const problemsMap = new Map(problems.map((p: any) => [p.id, p.title]));
 
-        // 3. Map and Sort
+        // 3. Map, Filter (only teams with score > 0), and Sort
         const leaderboard = teams
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .filter((t: any) => (t.score || 0) > 0) // Only show teams that have submitted (score > 0)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .map((t: any) => ({
                 id: t.id, // This is the UUID
